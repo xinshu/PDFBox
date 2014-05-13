@@ -1,0 +1,3 @@
+org\apache\pdfbox\tools\TestTextToPdf.class
+org\apache\pdfbox\tools\TestPDFText2HTML.class
+org\apache\pdfbox\tools\TestExtractText.class

@@ -1,0 +1,4 @@
+org\apache\fontbox\cmap\TestCMapParser.class
+org\apache\fontbox\cff\Type1FontUtilTest.class
+org\apache\fontbox\cff\Type1CharStringTest.class
+org\apache\fontbox\cmap\TestCMap.class

@@ -1,0 +1,3 @@
+org\apache\jempbox\xmp\XMPSchemaTest.class
+org\apache\jempbox\xmp\XMPMetadataTest.class
+org\apache\jempbox\xmp\AllTests.class

@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1398440282182
+Build-Jdk: 1.7.0_25
+Built-By: Shaola
+Bundle-Description: The Apache JempBox library is an open source Java to
+ ol that implements Adobe's XMP(TM)    specification. JempBox is a subpr
+ oject of Apache PDFBox.
+Bundle-DocURL: http://pdfbox.apache.org
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache JempBox
+Bundle-SymbolicName: org.apache.pdfbox.jempbox
+Bundle-Vendor: The Apache Software Foundation
+Bundle-Version: 2.0.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.apache.jempbox.xmp;uses:="javax.xml.transform,org.w3
+ c.dom,org.xml.sax";version="2.0.0.SNAPSHOT",org.apache.jempbox.xmp.pdfa
+ ;uses:="org.apache.jempbox.xmp,org.w3c.dom,org.xml.sax";version="2.0.0.
+ SNAPSHOT"
+Import-Package: javax.xml.parsers,javax.xml.transform,javax.xml.transfor
+ m.dom,javax.xml.transform.stream,org.w3c.dom,org.xml.sax
+Tool: Bnd-2.1.0.20130426-122213
