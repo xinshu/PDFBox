@@ -48,9 +48,9 @@ org\apache\fontbox\ttf\NamingTable.class
 org\apache\fontbox\cff\AFMFormatter$1.class
 org\apache\fontbox\cff\Type1CharString.class
 org\apache\fontbox\cff\charset\CFFISOAdobeCharset.class
+org\apache\fontbox\ttf\MaximumProfileTable.class
 org\apache\fontbox\cff\CFFStandardString.class
 org\apache\fontbox\cff\Type2CharStringParser.class
-org\apache\fontbox\ttf\MaximumProfileTable.class
 org\apache\fontbox\ttf\TTFDataStream.class
 org\apache\fontbox\cff\CFFOperator$Key.class
 org\apache\fontbox\ttf\AbstractTTFParser.class

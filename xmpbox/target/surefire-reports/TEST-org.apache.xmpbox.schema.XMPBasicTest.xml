@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.xmpbox.schema.XMPBasicTest" time="0.121" tests="22" errors="0" skipped="0" failures="0">
+<testsuite name="org.apache.xmpbox.schema.XMPBasicTest" time="0.123" tests="22" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_25\jre\bin"/>
@@ -43,7 +43,7 @@
     <property name="java.vm.specification.version" value="1.7"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_25\jre"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install source:jar"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="user.language" value="en"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -60,25 +60,25 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="testGetSetValue[0]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.004"/>
-  <testcase name="testGetSetProperty[0]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.007"/>
+  <testcase name="testGetSetValue[0]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
+  <testcase name="testGetSetProperty[0]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.009"/>
   <testcase name="testGetSetValue[1]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
   <testcase name="testGetSetProperty[1]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
-  <testcase name="testGetSetValue[2]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.004"/>
+  <testcase name="testGetSetValue[2]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
   <testcase name="testGetSetProperty[2]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.007"/>
-  <testcase name="testGetSetValue[3]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.004"/>
+  <testcase name="testGetSetValue[3]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
   <testcase name="testGetSetProperty[3]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
-  <testcase name="testGetSetValue[4]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
+  <testcase name="testGetSetValue[4]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.004"/>
   <testcase name="testGetSetProperty[4]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
   <testcase name="testGetSetValue[5]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
   <testcase name="testGetSetProperty[5]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
   <testcase name="testGetSetValue[6]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
   <testcase name="testGetSetProperty[6]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.007"/>
   <testcase name="testGetSetValue[7]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
-  <testcase name="testGetSetProperty[7]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
-  <testcase name="testGetSetValue[8]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
-  <testcase name="testGetSetProperty[8]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
-  <testcase name="testGetSetValue[9]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
+  <testcase name="testGetSetProperty[7]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.007"/>
+  <testcase name="testGetSetValue[8]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.004"/>
+  <testcase name="testGetSetProperty[8]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
+  <testcase name="testGetSetValue[9]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.005"/>
   <testcase name="testGetSetProperty[9]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>
   <testcase name="testGetSetValue[10]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.004"/>
   <testcase name="testGetSetProperty[10]" classname="org.apache.xmpbox.schema.XMPBasicTest" time="0.006"/>

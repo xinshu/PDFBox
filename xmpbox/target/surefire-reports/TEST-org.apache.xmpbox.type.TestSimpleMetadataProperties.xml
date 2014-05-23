@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.052" tests="10" errors="0" skipped="0" failures="0">
+<testsuite name="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.035" tests="10" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_25\jre\bin"/>
@@ -43,7 +43,7 @@
     <property name="java.vm.specification.version" value="1.7"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_25\jre"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install source:jar"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="user.language" value="en"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -61,13 +61,13 @@
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
   <testcase name="testDateBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.002"/>
-  <testcase name="testExceptionWithCause" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.006"/>
-  <testcase name="testCreationFromString" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.007"/>
-  <testcase name="testBooleanBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.006"/>
-  <testcase name="testAttribute" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.004"/>
-  <testcase name="testElementAndObjectSynchronization" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.006"/>
-  <testcase name="testTextBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.004"/>
-  <testcase name="testRealBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.006"/>
-  <testcase name="testIntegerBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.004"/>
-  <testcase name="testObjectCreationWithNamespace" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.007"/>
+  <testcase name="testExceptionWithCause" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.003"/>
+  <testcase name="testCreationFromString" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.004"/>
+  <testcase name="testBooleanBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.004"/>
+  <testcase name="testAttribute" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.003"/>
+  <testcase name="testElementAndObjectSynchronization" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.004"/>
+  <testcase name="testTextBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.005"/>
+  <testcase name="testRealBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.003"/>
+  <testcase name="testIntegerBadTypeDetection" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.003"/>
+  <testcase name="testObjectCreationWithNamespace" classname="org.apache.xmpbox.type.TestSimpleMetadataProperties" time="0.004"/>
 </testsuite>

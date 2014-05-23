@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.pdfbox.util.TestRendering" time="3.76" tests="9" errors="0" skipped="0" failures="0">
+<testsuite name="org.apache.pdfbox.util.TestRendering" time="3.218" tests="9" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_25\jre\bin"/>
@@ -43,7 +43,7 @@
     <property name="java.vm.specification.version" value="1.7"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_25\jre"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install source:jar"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="user.language" value="en"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -60,13 +60,13 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="render[26101_Colors.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.152"/>
-  <testcase name="render[FANTASTICCMYK.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.02"/>
-  <testcase name="render[4PP-Highlighting.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.464"/>
-  <testcase name="render[source.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.253"/>
-  <testcase name="render[test-landscape2.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.04"/>
-  <testcase name="render[tiger-as-form-xobject.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.233"/>
-  <testcase name="render[ARCHIVERGB.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.43"/>
-  <testcase name="render[HOTRODCMYK.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.951"/>
-  <testcase name="render[survey.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="1.217"/>
+  <testcase name="render[26101_Colors.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.039"/>
+  <testcase name="render[FANTASTICCMYK.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.06"/>
+  <testcase name="render[4PP-Highlighting.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.251"/>
+  <testcase name="render[source.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.663"/>
+  <testcase name="render[test-landscape2.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.017"/>
+  <testcase name="render[tiger-as-form-xobject.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.283"/>
+  <testcase name="render[ARCHIVERGB.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.432"/>
+  <testcase name="render[HOTRODCMYK.ai]" classname="org.apache.pdfbox.util.TestRendering" time="0.586"/>
+  <testcase name="render[survey.pdf]" classname="org.apache.pdfbox.util.TestRendering" time="0.887"/>
 </testsuite>

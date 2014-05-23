@@ -17,6 +17,7 @@
 package org.apache.pdfbox.pdmodel.graphics.shading;
 
 import java.awt.PaintContext;
+import java.awt.Point;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -29,6 +30,7 @@ import java.awt.image.WritableRaster;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import org.apache.commons.logging.Log;
@@ -83,33 +85,24 @@ public class Type6ShadingContext implements PaintContext
      * @throws IOException if something went wrong
      */
     public Type6ShadingContext(PDShadingType6 shading, ColorModel colorModel, AffineTransform xform,
-                                    Matrix ctm, int pageHeight) throws IOException
+                                Matrix ctm, int pageHeight) throws IOException
     {
         coonsShadingType = shading;
         patchList = new ArrayList<CoonsPatch>();
         hasFunction = shading.getFunction() != null;
 
         shadingColorSpace = shading.getColorSpace();
-        LOG.debug("colorSpace: " + shadingColorSpace);
         
         numberOfColorComponents = shadingColorSpace.getNumberOfComponents();
-        LOG.debug("numberOfColorComponents: " + numberOfColorComponents);
         
         bitsPerColorComponent = shading.getBitsPerComponent();
-        LOG.debug("bitsPerColorComponent: " + bitsPerColorComponent);
         
-        bitsPerCoordinate = shading.getBitsPerComponent();
-        LOG.debug("bitsPerCoordinate: " + bitsPerCoordinate);
+        bitsPerCoordinate = shading.getBitsPerCoordinate();
         
         bitsPerFlag = shading.getBitsPerFlag();
         
         long maxSrcCoord = (int) Math.pow(2, bitsPerCoordinate) - 1;
         long maxSrcColor = (int) Math.pow(2, bitsPerColorComponent) - 1;
-        LOG.debug("maxSrcCoord: " + maxSrcCoord);
-        LOG.debug("maxSrcColor: " + maxSrcColor);
-        
-        LOG.debug("BBox: " + shading.getBBox());
-        LOG.debug("Background: " + shading.getBackground());
 
         // create the output color model using RGB+alpha as color space
         ColorSpace outputCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
@@ -126,11 +119,8 @@ public class Type6ShadingContext implements PaintContext
         COSStream cosStream = (COSStream) cosDictionary;
         
         COSArray decode = (COSArray) cosDictionary.getDictionaryObject(COSName.DECODE);
-        LOG.debug("decode: " + decode);
         PDRange rangeX = shading.getDecodeForParameter(0);
         PDRange rangeY = shading.getDecodeForParameter(1);
-        LOG.debug("rangeX: " + rangeX.getMin() + ", " + rangeX.getMax());
-        LOG.debug("rangeY: " + rangeY.getMin() + ", " + rangeY.getMax());
 
         PDRange[] colRange = new PDRange[numberOfColorComponents];
         for (int i = 0; i < numberOfColorComponents; ++i)
@@ -151,7 +141,6 @@ public class Type6ShadingContext implements PaintContext
         }
         catch (EOFException ex)
         {
-            LOG.debug("EOF");
         }
         
         while (true)
@@ -161,6 +150,10 @@ public class Type6ShadingContext implements PaintContext
                 boolean isFree = (flag == 0);
                 CoonsPatch current = readCoonsPatch(mciis, isFree, implicitEdge, implicitCornerColor,
                         maxSrcCoord, maxSrcColor, rangeX, rangeY, colRange);
+                if (current == null)
+                {
+                    break;
+                }
                 patchList.add(current);
                 flag = (byte) (mciis.readBits(bitsPerFlag) & 3);
                 switch (flag)
@@ -198,7 +191,6 @@ public class Type6ShadingContext implements PaintContext
             }
             catch (EOFException ex)
             {
-                LOG.debug("EOF");
                 break;
             }
         }
@@ -206,8 +198,8 @@ public class Type6ShadingContext implements PaintContext
     }
     
     private CoonsPatch readCoonsPatch(ImageInputStream input, boolean isFree, CubicBezierCurve implicitEdge, 
-                        float[][] implicitCornerColor, long maxSrcCoord, long maxSrcColor, 
-                        PDRange rangeX, PDRange rangeY, PDRange[] colRange) throws IOException
+                                float[][] implicitCornerColor, long maxSrcCoord, long maxSrcColor, 
+                                PDRange rangeX, PDRange rangeY, PDRange[] colRange) throws IOException
     {
         float[][] color = new float[4][numberOfColorComponents];
         Point2D[] points = new Point2D[12];
@@ -232,22 +224,34 @@ public class Type6ShadingContext implements PaintContext
             }
         }
         
-        for (int i = pStart; i < 12; i++)
+        try
         {
-            long x = input.readBits(bitsPerCoordinate);
-            long y = input.readBits(bitsPerCoordinate);
-            double px = interpolate(x, maxSrcCoord, rangeX.getMin(), rangeX.getMax());
-            double py = interpolate(y, maxSrcCoord, rangeY.getMin(), rangeY.getMax());
-            points[i] = new Point2D.Double(px, py);
-        }
-        
-        for (int i = cStart; i < 4; i++)
-        {
-            for (int j = 0; j < numberOfColorComponents; j++)
+            for (int i = pStart; i < 12; i++)
             {
-                int c = (int) input.readBits(bitsPerColorComponent);
-                color[i][j] = (float) interpolate(c, maxSrcColor, colRange[j].getMin(), colRange[j].getMax());
+                long x = input.readBits(bitsPerCoordinate);
+                long y = input.readBits(bitsPerCoordinate);
+                double px = interpolate(x, maxSrcCoord, rangeX.getMin(), rangeX.getMax());
+                double py = interpolate(y, maxSrcCoord, rangeY.getMin(), rangeY.getMax());
+                System.out.println("x: " + x + " " + maxSrcCoord + " " + rangeX.getMin() + " " + rangeX.getMax());
+                System.out.println("y: " + y + " " + maxSrcCoord + " " + rangeY.getMin() + " " + rangeY.getMax());
+                System.out.println("interpolate: " + px + " " + py);
+                points[i] = new Point2D.Double(px, py);
             }
+
+            for (int i = cStart; i < 4; i++)
+            {
+                for (int j = 0; j < numberOfColorComponents; j++)
+                {
+                    int c = (int) input.readBits(bitsPerColorComponent);
+                    color[i][j] = (float) interpolate(c, maxSrcColor, colRange[j].getMin(), colRange[j].getMax());
+                    System.out.println("color: " + j + " " + c + " " + color[i][j]);
+                }
+            }
+        }
+        catch(EOFException ex)
+        {
+            LOG.debug("EOF");
+            return null;
         }
         
         CubicBezierCurve d1 = new CubicBezierCurve(new Point2D[]
@@ -289,16 +293,47 @@ public class Type6ShadingContext implements PaintContext
         return outputColorModel;
     }
     
+    private boolean isValid(int w, int h, Point p)
+    {
+        return p.y >= 0 && p.y < h && p.x >=0 && p.x < w;
+    }
+    
     @Override
     public final Raster getRaster(int x, int y, int w, int h)
     {
         // to do, need to edit the concrete content
         WritableRaster raster = getColorModel().createCompatibleWritableRaster(w, h);
         int[] data = new int[w * h * 4];
+        float[] values;
         
+        if(background != null)
+        {
+            values = background;
+            try
+            {
+                values = shadingColorSpace.toRGB(values);
+            }
+            catch (IOException exception)
+            {
+                LOG.error("error processing color space", exception);
+            }
+            for (int i = 0; i < w; i++)
+            {
+                for (int j = 0; j < h; j++)
+                {
+                    int index = (i * w + j) * 4;
+                    data[index] = (int) (values[0] * 255);
+                    data[index + 1] = (int) (values[1] * 255);
+                    data[index + 2] = (int) (values[2] * 255);
+                    data[index + 3] = 255;
+                }
+            }
+        }
         
-        
+        if (!patchList.isEmpty())
+        {
+        }
+        raster.setPixels(0, 0, w, h, data);
         return raster;
-    }
-    
+    }   
 }

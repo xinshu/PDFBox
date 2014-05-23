@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.pdfbox.preflight.action.pdfa1b.TestGotoAction
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 sec - in org.apache.pdfbox.preflight.action.pdfa1b.TestGotoAction
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 sec - in org.apache.pdfbox.preflight.action.pdfa1b.TestGotoAction

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.pdfbox.util.TestRendering
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.242 sec - in org.apache.pdfbox.util.TestRendering
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.138 sec - in org.apache.pdfbox.util.TestRendering

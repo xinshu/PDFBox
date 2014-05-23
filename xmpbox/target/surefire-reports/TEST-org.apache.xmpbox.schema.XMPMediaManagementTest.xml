@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.178" tests="22" errors="0" skipped="0" failures="0">
+<testsuite name="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.138" tests="22" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_25\jre\bin"/>
@@ -43,7 +43,7 @@
     <property name="java.vm.specification.version" value="1.7"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_25\jre"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install source:jar"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="user.language" value="en"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -60,26 +60,26 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="testGetSetValue[DocumentID org.apache.xmpbox.type.TypeMapping$1@45eefc33 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
-  <testcase name="testGetSetProperty[DocumentID org.apache.xmpbox.type.TypeMapping$1@45eefc33 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.007"/>
-  <testcase name="testGetSetValue[Manager org.apache.xmpbox.type.TypeMapping$1@4cef9c23 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
-  <testcase name="testGetSetProperty[Manager org.apache.xmpbox.type.TypeMapping$1@4cef9c23 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.008"/>
-  <testcase name="testGetSetValue[ManageTo org.apache.xmpbox.type.TypeMapping$1@6f3e54b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
-  <testcase name="testGetSetProperty[ManageTo org.apache.xmpbox.type.TypeMapping$1@6f3e54b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.011"/>
-  <testcase name="testGetSetValue[ManageUI org.apache.xmpbox.type.TypeMapping$1@7652a27d {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.014"/>
-  <testcase name="testGetSetProperty[ManageUI org.apache.xmpbox.type.TypeMapping$1@7652a27d {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.025"/>
-  <testcase name="testGetSetValue[InstanceID org.apache.xmpbox.type.TypeMapping$1@2b29f93b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.015"/>
-  <testcase name="testGetSetProperty[InstanceID org.apache.xmpbox.type.TypeMapping$1@2b29f93b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.021"/>
-  <testcase name="testGetSetValue[OriginalDocumentID org.apache.xmpbox.type.TypeMapping$1@50a9a6a0 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
-  <testcase name="testGetSetProperty[OriginalDocumentID org.apache.xmpbox.type.TypeMapping$1@50a9a6a0 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.006"/>
-  <testcase name="testGetSetValue[RenditionParams org.apache.xmpbox.type.TypeMapping$1@31fa7bbf {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
-  <testcase name="testGetSetProperty[RenditionParams org.apache.xmpbox.type.TypeMapping$1@31fa7bbf {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.006"/>
-  <testcase name="testGetSetValue[VersionID org.apache.xmpbox.type.TypeMapping$1@33d2523b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
-  <testcase name="testGetSetProperty[VersionID org.apache.xmpbox.type.TypeMapping$1@33d2523b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.007"/>
-  <testcase name="testGetSetValue[Versions org.apache.xmpbox.type.TypeMapping$1@3514ba11 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.003"/>
-  <testcase name="testGetSetProperty[Versions org.apache.xmpbox.type.TypeMapping$1@3514ba11 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.007"/>
-  <testcase name="testGetSetValue[History org.apache.xmpbox.type.TypeMapping$1@63c3cd50 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
-  <testcase name="testGetSetProperty[History org.apache.xmpbox.type.TypeMapping$1@63c3cd50 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.006"/>
-  <testcase name="testGetSetValue[Ingredients org.apache.xmpbox.type.TypeMapping$1@4bdc725b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
-  <testcase name="testGetSetProperty[Ingredients org.apache.xmpbox.type.TypeMapping$1@4bdc725b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.006"/>
+  <testcase name="testGetSetValue[DocumentID org.apache.xmpbox.type.TypeMapping$1@4ff04845 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
+  <testcase name="testGetSetProperty[DocumentID org.apache.xmpbox.type.TypeMapping$1@4ff04845 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.008"/>
+  <testcase name="testGetSetValue[Manager org.apache.xmpbox.type.TypeMapping$1@2818d303 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
+  <testcase name="testGetSetProperty[Manager org.apache.xmpbox.type.TypeMapping$1@2818d303 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.007"/>
+  <testcase name="testGetSetValue[ManageTo org.apache.xmpbox.type.TypeMapping$1@75c57e85 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
+  <testcase name="testGetSetProperty[ManageTo org.apache.xmpbox.type.TypeMapping$1@75c57e85 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.008"/>
+  <testcase name="testGetSetValue[ManageUI org.apache.xmpbox.type.TypeMapping$1@78f58a2a {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
+  <testcase name="testGetSetProperty[ManageUI org.apache.xmpbox.type.TypeMapping$1@78f58a2a {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.008"/>
+  <testcase name="testGetSetValue[InstanceID org.apache.xmpbox.type.TypeMapping$1@40420970 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.008"/>
+  <testcase name="testGetSetProperty[InstanceID org.apache.xmpbox.type.TypeMapping$1@40420970 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.01"/>
+  <testcase name="testGetSetValue[OriginalDocumentID org.apache.xmpbox.type.TypeMapping$1@2f79b905 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
+  <testcase name="testGetSetProperty[OriginalDocumentID org.apache.xmpbox.type.TypeMapping$1@2f79b905 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.007"/>
+  <testcase name="testGetSetValue[RenditionParams org.apache.xmpbox.type.TypeMapping$1@60620f9c {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.006"/>
+  <testcase name="testGetSetProperty[RenditionParams org.apache.xmpbox.type.TypeMapping$1@60620f9c {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.008"/>
+  <testcase name="testGetSetValue[VersionID org.apache.xmpbox.type.TypeMapping$1@45eefc33 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
+  <testcase name="testGetSetProperty[VersionID org.apache.xmpbox.type.TypeMapping$1@45eefc33 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.006"/>
+  <testcase name="testGetSetValue[Versions org.apache.xmpbox.type.TypeMapping$1@4cef9c23 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
+  <testcase name="testGetSetProperty[Versions org.apache.xmpbox.type.TypeMapping$1@4cef9c23 {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.008"/>
+  <testcase name="testGetSetValue[History org.apache.xmpbox.type.TypeMapping$1@6f3e54b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.005"/>
+  <testcase name="testGetSetProperty[History org.apache.xmpbox.type.TypeMapping$1@6f3e54b {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.007"/>
+  <testcase name="testGetSetValue[Ingredients org.apache.xmpbox.type.TypeMapping$1@7652a27d {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.004"/>
+  <testcase name="testGetSetProperty[Ingredients org.apache.xmpbox.type.TypeMapping$1@7652a27d {2}]" classname="org.apache.xmpbox.schema.XMPMediaManagementTest" time="0.007"/>
 </testsuite>

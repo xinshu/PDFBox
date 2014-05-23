@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.xmpbox.schema.AdobePDFTest" time="0.194" tests="12" errors="0" skipped="0" failures="0">
+<testsuite name="org.apache.xmpbox.schema.AdobePDFTest" time="0.156" tests="12" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_25\jre\bin"/>
@@ -43,7 +43,7 @@
     <property name="java.vm.specification.version" value="1.7"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_25\jre"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dmaven.ext.class.path=C:\Program Files\NetBeans 8.0\java\maven-nblib\netbeans-eventspy.jar -Dfile.encoding=ISO-8859-1 install source:jar"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="user.language" value="en"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -60,16 +60,16 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="testBadPDFAConformanceId[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.01"/>
-  <testcase name="testPDFAIdentification[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.019"/>
-  <testcase name="testGetSetValue[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.038"/>
-  <testcase name="testGetSetProperty[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.028"/>
-  <testcase name="testBadPDFAConformanceId[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.008"/>
-  <testcase name="testPDFAIdentification[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.014"/>
-  <testcase name="testGetSetValue[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.014"/>
-  <testcase name="testGetSetProperty[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.015"/>
+  <testcase name="testBadPDFAConformanceId[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.017"/>
+  <testcase name="testPDFAIdentification[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.015"/>
+  <testcase name="testGetSetValue[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.017"/>
+  <testcase name="testGetSetProperty[0]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.014"/>
+  <testcase name="testBadPDFAConformanceId[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.009"/>
+  <testcase name="testPDFAIdentification[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.012"/>
+  <testcase name="testGetSetValue[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.015"/>
+  <testcase name="testGetSetProperty[1]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.014"/>
   <testcase name="testBadPDFAConformanceId[2]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.011"/>
-  <testcase name="testPDFAIdentification[2]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.013"/>
-  <testcase name="testGetSetValue[2]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.015"/>
-  <testcase name="testGetSetProperty[2]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.009"/>
+  <testcase name="testPDFAIdentification[2]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.01"/>
+  <testcase name="testGetSetValue[2]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.011"/>
+  <testcase name="testGetSetProperty[2]" classname="org.apache.xmpbox.schema.AdobePDFTest" time="0.011"/>
 </testsuite>

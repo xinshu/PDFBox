@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1398440279680
+Bnd-LastModified: 1400845115289
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache FontBox library is an open source Java to
@@ -13,16 +13,16 @@ Bundle-SymbolicName: org.apache.pdfbox.fontbox
 Bundle-Vendor: The Apache Software Foundation
 Bundle-Version: 2.0.0.SNAPSHOT
 Created-By: Apache Maven Bundle Plugin
-Export-Package: org.apache.fontbox.afm;uses:="org.apache.fontbox.util";v
- ersion="2.0.0.SNAPSHOT",org.apache.fontbox.cff;uses:="org.apache.fontbo
- x.cff.charset,org.apache.fontbox.cff.encoding,org.apache.fontbox.type1"
- ;version="2.0.0.SNAPSHOT",org.apache.fontbox.cff.charset;version="2.0.0
+Export-Package: org.apache.fontbox.afm;version="2.0.0.SNAPSHOT";uses:="o
+ rg.apache.fontbox.util",org.apache.fontbox.cff;version="2.0.0.SNAPSHOT"
+ ;uses:="org.apache.fontbox.cff.charset,org.apache.fontbox.cff.encoding,
+ org.apache.fontbox.type1",org.apache.fontbox.cff.charset;version="2.0.0
  .SNAPSHOT",org.apache.fontbox.cff.encoding;version="2.0.0.SNAPSHOT",org
  .apache.fontbox.cmap;version="2.0.0.SNAPSHOT",org.apache.fontbox.encodi
  ng;version="2.0.0.SNAPSHOT",org.apache.fontbox.pfb;version="2.0.0.SNAPS
- HOT",org.apache.fontbox.ttf;uses:="org.apache.fontbox.util";version="2.
- 0.0.SNAPSHOT",org.apache.fontbox.type1;uses:="org.apache.fontbox.cff,or
- g.apache.fontbox.encoding";version="2.0.0.SNAPSHOT",org.apache.fontbox.
+ HOT",org.apache.fontbox.ttf;version="2.0.0.SNAPSHOT";uses:="org.apache.
+ fontbox.util",org.apache.fontbox.type1;version="2.0.0.SNAPSHOT";uses:="
+ org.apache.fontbox.cff,org.apache.fontbox.encoding",org.apache.fontbox.
  util;version="2.0.0.SNAPSHOT"
 Import-Package: org.apache.commons.logging;version="[1.1,2)"
 Tool: Bnd-2.1.0.20130426-122213

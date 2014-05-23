@@ -33,6 +33,8 @@ public class CoonsPatch
     
     private final int horizontalElementNum;
     private final int verticalElementNum;
+    private final double stepu;
+    private final double stepv;
     
     private final Point2D[] curveC1;
     private final Point2D[] curveC2;
@@ -48,7 +50,7 @@ public class CoonsPatch
      * @param color 4 corner colors, value is as [c1, c2, c3, c4]
      */
     public CoonsPatch(CubicBezierCurve c1, CubicBezierCurve c2, CubicBezierCurve d1, CubicBezierCurve d2, 
-            float[][] color)
+                                float[][] color)
     {
         edgeC1 = c1;
         edgeC2 = c2;
@@ -61,8 +63,11 @@ public class CoonsPatch
         int v1 = (int) Math.abs(edgeD1.controlPoints[0].getY() - edgeD1.controlPoints[3].getY());
         int v2 = (int) Math.abs(edgeD2.controlPoints[0].getY() - edgeD2.controlPoints[3].getY());
         
-        horizontalElementNum = Math.max(h1, h2) + 1;
-        verticalElementNum = Math.max(v1, v2) + 1;
+        horizontalElementNum = Math.min(Math.max(h1, h2), 10) + 2;
+        verticalElementNum = Math.min(Math.max(v1, v2), 10) + 2;
+        
+        stepu = 1 / (horizontalElementNum - 1);
+        stepv = 1 / (verticalElementNum - 1);
         
         curveC1 = edgeC1.getCubicBezierCurve(horizontalElementNum);
         curveC2 = edgeC2.getCubicBezierCurve(horizontalElementNum);
@@ -70,12 +75,10 @@ public class CoonsPatch
         curveD2 = edgeD2.getCubicBezierCurve(verticalElementNum);
     }
     
-    public float[] getParamSpaceColor(int numberOfColorComponents, int i, int j)
+    public float[] getParamSpaceColor(int i, int j)
     {
+        int numberOfColorComponents = cornerColor[0].length;
         float[] paramSC = new float[numberOfColorComponents];
-        
-        double stepu = 1 / (horizontalElementNum - 1);
-        double stepv = 1 / (verticalElementNum - 1);
         
         double u = stepu * j;
         double v = stepv * i;
@@ -90,9 +93,6 @@ public class CoonsPatch
     public Point[][] getPatchCoordinates()
     {
         Point[][] patchCo = new Point[verticalElementNum][horizontalElementNum];
-        
-        double stepu = 1 / (horizontalElementNum - 1);
-        double stepv = 1 / (verticalElementNum - 1);
         
         double v = -stepv;
         for(int i = 0; i < verticalElementNum; i++)

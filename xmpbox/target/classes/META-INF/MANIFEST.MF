@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1398440291450
+Bnd-LastModified: 1400845124131
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache XmpBox library is an open source Java too
@@ -15,14 +15,14 @@ Bundle-SymbolicName: org.apache.pdfbox.xmpbox
 Bundle-Vendor: The Apache Software Foundation
 Bundle-Version: 2.0.0.SNAPSHOT
 Created-By: Apache Maven Bundle Plugin
-Export-Package: org.apache.xmpbox;uses:="org.apache.xmpbox.schema,org.ap
- ache.xmpbox.type";version="2.0.0.SNAPSHOT",org.apache.xmpbox.schema;use
- s:="org.apache.xmpbox,org.apache.xmpbox.type";version="2.0.0.SNAPSHOT",
- org.apache.xmpbox.type;uses:="javax.xml.namespace,org.apache.xmpbox,org
- .apache.xmpbox.schema";version="2.0.0.SNAPSHOT",org.apache.xmpbox.xml;u
- ses:="javax.xml.namespace,javax.xml.transform,org.apache.xmpbox,org.apa
- che.xmpbox.schema,org.apache.xmpbox.type,org.w3c.dom";version="2.0.0.SN
- APSHOT"
+Export-Package: org.apache.xmpbox;version="2.0.0.SNAPSHOT";uses:="org.ap
+ ache.xmpbox.schema,org.apache.xmpbox.type",org.apache.xmpbox.schema;ver
+ sion="2.0.0.SNAPSHOT";uses:="org.apache.xmpbox,org.apache.xmpbox.type",
+ org.apache.xmpbox.type;version="2.0.0.SNAPSHOT";uses:="javax.xml.namesp
+ ace,org.apache.xmpbox,org.apache.xmpbox.schema",org.apache.xmpbox.xml;v
+ ersion="2.0.0.SNAPSHOT";uses:="javax.xml.namespace,javax.xml.transform,
+ org.apache.xmpbox,org.apache.xmpbox.schema,org.apache.xmpbox.type,org.w
+ 3c.dom"
 Import-Package: javax.xml.namespace,javax.xml.parsers,javax.xml.transfor
  m,javax.xml.transform.dom,javax.xml.transform.stream,org.w3c.dom,org.xm
  l.sax

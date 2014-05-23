@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.pdfbox.pdmodel.common.function.TestFunctions
 -------------------------------------------------------------------------------
-Tests run: 46, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.212 sec - in org.apache.pdfbox.pdmodel.common.function.TestFunctions
+Tests run: 46, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.148 sec - in org.apache.pdfbox.pdmodel.common.function.TestFunctions

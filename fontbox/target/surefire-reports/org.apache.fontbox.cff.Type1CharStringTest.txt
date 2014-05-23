@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.fontbox.cff.Type1CharStringTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.129 sec - in org.apache.fontbox.cff.Type1CharStringTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.064 sec - in org.apache.fontbox.cff.Type1CharStringTest

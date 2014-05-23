@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1398440397471
+Bnd-LastModified: 1400845197113
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache Software Foundation provides support for 
@@ -163,13 +163,13 @@ Export-Package: org.apache.pdfbox.cos;version="2.0.0.SNAPSHOT";uses:="or
  c;version="2.0.0.SNAPSHOT",org.apache.pdfbox.resources.ttf;version="2.0
  .0.SNAPSHOT",org.apache.pdfbox.text;version="2.0.0.SNAPSHOT";uses:="org
  .apache.pdfbox.pdmodel,org.apache.pdfbox.pdmodel.font,org.apache.pdfbox
- .util",org.apache.pdfbox.tools;uses:="javax.swing,javax.swing.filechoos
- er,org.apache.pdfbox.pdmodel,org.apache.pdfbox.pdmodel.fdf,org.apache.p
- dfbox.pdmodel.font,org.apache.pdfbox.text,org.apache.pdfbox.tools.gui,o
- rg.apache.pdfbox.util";version="2.0.0.SNAPSHOT",org.apache.pdfbox.tools
- .gui;uses:="javax.swing,javax.swing.event,javax.swing.tree,org.apache.p
- dfbox.pdmodel,org.apache.pdfbox.rendering,org.apache.pdfbox.tools";vers
- ion="2.0.0.SNAPSHOT",org.apache.pdfbox.util;version="2.0.0.SNAPSHOT";us
+ .util",org.apache.pdfbox.tools;version="2.0.0.SNAPSHOT";uses:="javax.sw
+ ing,javax.swing.filechooser,org.apache.pdfbox.pdmodel,org.apache.pdfbox
+ .pdmodel.fdf,org.apache.pdfbox.pdmodel.font,org.apache.pdfbox.text,org.
+ apache.pdfbox.tools.gui,org.apache.pdfbox.util",org.apache.pdfbox.tools
+ .gui;version="2.0.0.SNAPSHOT";uses:="javax.swing,javax.swing.event,java
+ x.swing.tree,org.apache.pdfbox.pdmodel,org.apache.pdfbox.rendering,org.
+ apache.pdfbox.tools",org.apache.pdfbox.util;version="2.0.0.SNAPSHOT";us
  es:="org.apache.pdfbox.cos,org.apache.pdfbox.io,org.apache.pdfbox.pdmod
  el,org.apache.pdfbox.pdmodel.common,org.apache.pdfbox.pdmodel.documenti
  nterchange.markedcontent,org.apache.pdfbox.pdmodel.font,org.apache.pdfb
