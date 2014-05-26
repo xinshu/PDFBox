@@ -8,6 +8,8 @@
             <goals>
                 <goal>install</goal>
                 <goal>source:jar</goal>
+                <goal>-DskipTests</goal>
+                
             </goals>
         </action>
         <action>
