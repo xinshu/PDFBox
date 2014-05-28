@@ -73,6 +73,52 @@ public class CubicBezierCurve
         return np;
     }
     
+    public boolean isOn(Point2D p)
+    {
+        Point2D np = rotatePoint(p);
+        return isOn(newControlPoints, np);
+    }
+    
+    private boolean isOn(Point2D[] ctrlPnts, Point2D p)
+    {
+        if (isPoint(ctrlPnts))
+        {
+            return Math.abs(p.getX() - ctrlPnts[0].getX()) < 1 && Math.abs(p.getY() - ctrlPnts[0].getY()) < 1;
+        }
+        if (p.getX() < ctrlPnts[0].getX() || p.getX() > ctrlPnts[3].getX())
+        {
+            return false;
+        }
+        boolean res;
+        Point2D m01 = getMid(ctrlPnts[0], ctrlPnts[1]);
+        Point2D m12 = getMid(ctrlPnts[1], ctrlPnts[2]);
+        Point2D m23 = getMid(ctrlPnts[2], ctrlPnts[3]);
+        Point2D m012 = getMid(m01, m12);
+        Point2D m123 = getMid(m12, m23);
+        Point2D m0123 = getMid(m012, m123);
+        if (Math.abs(p.getX() - m0123.getX()) < 1)
+        {
+            res = Math.abs(p.getY() - m0123.getY()) < 1;
+        }
+        else if (p.getX() < m0123.getX())
+        {
+            Point2D[] leftSub = new Point2D[]
+            {
+                ctrlPnts[0], m01, m012, m0123
+            };
+            res = isOn(leftSub, p);
+        }
+        else
+        {
+            Point2D[] rightSub = new Point2D[]
+            {
+                m0123, m123, m23, ctrlPnts[3]
+            };
+            res = isOn(rightSub, p);
+        }
+        return res;
+    }
+    
     public boolean isAbove(Point2D p)
     {
         Point2D np = rotatePoint(p);

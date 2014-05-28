@@ -89,10 +89,11 @@ public class Type6ShadingContext implements PaintContext
         coonsShadingType = shading;
         patchList = new ArrayList<CoonsPatch>();
         hasFunction = shading.getFunction() != null;
-
+        System.out.println("has Function: " + hasFunction);
         shadingColorSpace = shading.getColorSpace();
         
         numberOfColorComponents = shadingColorSpace.getNumberOfComponents();
+        System.out.println("numberOfColorComponents: " + numberOfColorComponents);
         
         bitsPerColorComponent = shading.getBitsPerComponent();
         
@@ -155,7 +156,7 @@ public class Type6ShadingContext implements PaintContext
                 }
                 patchList.add(current);
                 flag = (byte) (mciis.readBits(bitsPerFlag) & 3);
-                //System.out.println("flag: " + flag);
+                System.out.println("flag: " + flag);
                 switch (flag)
                 {
                     case 0:
@@ -212,6 +213,7 @@ public class Type6ShadingContext implements PaintContext
                                 Matrix ctm, AffineTransform xform) throws IOException
     {
         float[][] color = new float[4][numberOfColorComponents];
+        
         Point2D[] points = new Point2D[12];
         
         int pStart = 4, cStart = 2;
@@ -249,14 +251,29 @@ public class Type6ShadingContext implements PaintContext
                 System.out.println("y: " + y + " " + maxSrcCoord + " " + rangeY.getMin() + " " + rangeY.getMax());
                 System.out.println("interpolate: " + tmp.getX() + " " + tmp.getY());
             }
-
-            for (int i = cStart; i < 4; i++)
-            {
-                for (int j = 0; j < numberOfColorComponents; j++)
+            
+            if (!hasFunction){
+                for (int i = cStart; i < 4; i++)
                 {
+                    for (int j = 0; j < numberOfColorComponents; j++)
+                    {
+                        int c = (int) input.readBits(bitsPerColorComponent);
+                        color[i][j] = (float) interpolate(c, maxSrcColor, colRange[j].getMin(), colRange[j].getMax());
+                        System.out.println("color: " + j + " " + c + " " + color[i][j]);
+                    }
+                }
+            }
+            // need to edit to real value
+            else
+            {
+                for (int i = cStart; i < 4; i++)
+                {
+                    for (int j = 0; j < numberOfColorComponents; j++)
+                    {
+                        color[i][j] = 0.5f;
+                    }
                     int c = (int) input.readBits(bitsPerColorComponent);
-                    color[i][j] = (float) interpolate(c, maxSrcColor, colRange[j].getMin(), colRange[j].getMax());
-                    //System.out.println("color: " + j + " " + c + " " + color[i][j]);
+                    System.out.println("color: " + 0 + " " + c);
                 }
             }
         }
@@ -314,6 +331,7 @@ public class Type6ShadingContext implements PaintContext
         
         if (!patchList.isEmpty() || background != null)
         {
+            //System.out.println("patchList.size(): " + patchList.size());
             for (int row = 0; row < h; row++)
             {
                 for (int col = 0; col < w; col++)
@@ -322,7 +340,27 @@ public class Type6ShadingContext implements PaintContext
                     CoonsPatch patch = null;
                     for (CoonsPatch it : patchList)
                     {
-                        if(it.contains(p))
+//                        if(it.contains(p))
+//                        {
+//                            patch = it;
+//                            break;
+//                        }
+                        if (it.edgeC1.isOn(p))
+                        {
+                            patch = it;
+                            break;
+                        }
+                        if (it.edgeC2.isOn(p))
+                        {
+                            patch = it;
+                            break;
+                        }
+                        if (it.edgeD1.isOn(p))
+                        {
+                            patch = it;
+                            break;
+                        }
+                        if (it.edgeD2.isOn(p))
                         {
                             patch = it;
                             break;
