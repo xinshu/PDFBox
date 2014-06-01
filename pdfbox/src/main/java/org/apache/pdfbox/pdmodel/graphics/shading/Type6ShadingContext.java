@@ -170,7 +170,9 @@ public class Type6ShadingContext implements PaintContext
                         }
                         break;
                     case 2:
-                        implicitEdge = current.edgeD2;
+                        Point2D[] implicitControlPointsFlag2 = {current.edgeD2.controlPoints[3], current.edgeD2.controlPoints[2], 
+                                current.edgeD2.controlPoints[1], current.edgeD2.controlPoints[0]};
+                        implicitEdge = new CubicBezierCurve(implicitControlPointsFlag2);
                         for (int i = 0; i < numberOfColorComponents; i++)
                         {
                             implicitCornerColor[0][i] = current.cornerColor[2][i];
@@ -178,7 +180,9 @@ public class Type6ShadingContext implements PaintContext
                         }
                         break;
                     case 3:
-                        implicitEdge = current.edgeC1;
+                        Point2D[] implicitControlPointsFlag3 = {current.edgeC1.controlPoints[3], current.edgeC1.controlPoints[2], 
+                                current.edgeC1.controlPoints[1], current.edgeC1.controlPoints[0]};
+                        implicitEdge = new CubicBezierCurve(implicitControlPointsFlag3);
                         for (int i = 0; i < numberOfColorComponents; i++)
                         {
                             implicitCornerColor[0][i] = current.cornerColor[3][i];
