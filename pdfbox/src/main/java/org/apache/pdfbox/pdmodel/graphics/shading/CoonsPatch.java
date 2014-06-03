@@ -16,7 +16,6 @@
 
 package org.apache.pdfbox.pdmodel.graphics.shading;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -97,11 +96,11 @@ public class CoonsPatch
         CoordinateColorPair[][] patchCC = new CoordinateColorPair[sz][sz];
         
         double step = (double) 1 / (sz - 1);
-        double v = -step;
+        double v = - step;
         for(int i = 0; i < sz; i++)
         {
             v += step;
-            double u = -step;
+            double u = - step;
             for(int j = 0; j < sz; j++)
             {
                 u += step;

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1401585025621
+Bnd-LastModified: 1401795995083
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache FontBox library is an open source Java to

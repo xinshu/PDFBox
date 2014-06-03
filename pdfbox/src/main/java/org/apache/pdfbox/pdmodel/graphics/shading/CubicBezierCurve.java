@@ -17,7 +17,6 @@
 package org.apache.pdfbox.pdmodel.graphics.shading;
 
 import java.awt.geom.Point2D;
-import java.util.HashSet;
 
 /**
  *
