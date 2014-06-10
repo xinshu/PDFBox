@@ -259,7 +259,7 @@ public class Type7ShadingContext implements PaintContext
             {
                 for (int j = 0; j < numberOfColorComponents; j++)
                 {
-                    int c = (int) input.readBits(bitsPerColorComponent);
+                    long c = input.readBits(bitsPerColorComponent);
                     color[i][j] = (float) interpolate(c, maxSrcColor, colRange[j].getMin(), colRange[j].getMax());
                     //System.out.println("color: " + j + " " + c + " " + color[i][j]);
                 }
@@ -273,9 +273,9 @@ public class Type7ShadingContext implements PaintContext
         return new TensorPatch(points, color);
     }
     
-    private double interpolate(float x, long maxValue, float rangeMin, float rangeMax)
+    private double interpolate(double x, long maxValue, float rangeMin, float rangeMax)
     {
-        return rangeMin + (double)(x / maxValue) * (rangeMax - rangeMin); 
+        return rangeMin + (x / maxValue) * (rangeMax - rangeMin); 
     }
     
     @Override
