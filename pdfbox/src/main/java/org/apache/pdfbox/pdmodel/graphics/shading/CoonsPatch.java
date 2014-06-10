@@ -68,19 +68,48 @@ public class CoonsPatch
         {
             for (int j = 1; j < sz; j++)
             {
-                Point2D[] llCorner = {patchCC[i-1][j-1].coordinate, patchCC[i-1][j].coordinate, patchCC[i][j-1].coordinate}; // counter clock wise
-                float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
-                CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
-                Point2D[] urCorner = {patchCC[i-1][j].coordinate, patchCC[i][j].coordinate, patchCC[i][j-1].coordinate}; // counter clock wise
-                float[][] urColor = {patchCC[i-1][j].color, patchCC[i][j].color, patchCC[i][j-1].color};
-                CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
-                list.add(tmpll);
-                list.add(tmpur);
+                Point2D p0 = patchCC[i-1][j-1].coordinate, p1 = patchCC[i-1][j].coordinate, p2 = patchCC[i][j].coordinate, 
+                                p3 = patchCC[i][j-1].coordinate;
+                boolean ll = true;
+                if (overlaps(p0, p1) || overlaps(p0, p3))
+                {
+                    ll = false;
+                }
+                else{
+                    Point2D[] llCorner = {p0, p1, p3}; // counter clock wise
+                    float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
+                    CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
+                    list.add(tmpll);
+                }
+                if (ll && (overlaps(p2, p1) || overlaps(p2, p3)))
+                {
+                }
+                else
+                {
+                    Point2D[] urCorner = {p3, p1, p2}; // counter clock wise
+                    float[][] urColor = {patchCC[i][j-1].color, patchCC[i-1][j].color, patchCC[i][j].color};
+                    CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
+                    list.add(tmpur);
+                }
+                
+//                Point2D[] llCorner = {patchCC[i-1][j-1].coordinate, patchCC[i-1][j].coordinate, patchCC[i][j-1].coordinate}; // counter clock wise
+//                float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
+//                CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
+//                Point2D[] urCorner = {patchCC[i-1][j].coordinate, patchCC[i][j].coordinate, patchCC[i][j-1].coordinate}; // counter clock wise
+//                float[][] urColor = {patchCC[i-1][j].color, patchCC[i][j].color, patchCC[i][j-1].color};
+//                CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
+//                list.add(tmpll);
+//                list.add(tmpur);
                 //System.out.println("templl: " + tmpll.toString());
                 //System.out.println("tempur: " + tmpur.toString());
             }
         }
         return list;
+    }
+    
+    private boolean overlaps(Point2D p0, Point2D p1)
+    {
+        return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
     }
     
     private CoordinateColorPair[][] getPatchCoordinatesColor(CubicBezierCurve C1, CubicBezierCurve C2, CubicBezierCurve D1, CubicBezierCurve D2)

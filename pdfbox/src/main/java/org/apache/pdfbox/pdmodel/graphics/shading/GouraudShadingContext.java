@@ -116,9 +116,6 @@ abstract class GouraudShadingContext implements PaintContext
         long y = input.readBits(bitsPerCoordinate);
         double dstX = interpolate(x, maxSrcCoord, rangeX.getMin(), rangeX.getMax());
         double dstY = interpolate(y, maxSrcCoord, rangeY.getMin(), rangeY.getMax());
-        System.out.println("x: " + x + " " + maxSrcCoord + " " + rangeX.getMin() + " " + rangeX.getMax());
-        System.out.println("y: " + y + " " + maxSrcCoord + " " + rangeY.getMin() + " " + rangeY.getMax());
-        System.out.println("interpolate: " + dstX + " " + dstY);
         LOG.debug("coord: " + String.format("[%06X,%06X] -> [%f,%f]", x, y, dstX, dstY));
         for (int n = 0; n < numberOfColorComponents; ++n)
         {

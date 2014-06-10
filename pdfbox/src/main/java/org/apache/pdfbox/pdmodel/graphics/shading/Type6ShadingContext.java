@@ -101,8 +101,8 @@ public class Type6ShadingContext implements PaintContext
         
         bitsPerFlag = shading.getBitsPerFlag();
         
-        long maxSrcCoord = (int) Math.pow(2, bitsPerCoordinate) - 1;
-        long maxSrcColor = (int) Math.pow(2, bitsPerColorComponent) - 1;
+        long maxSrcCoord = (long) Math.pow(2, bitsPerCoordinate) - 1;
+        long maxSrcColor = (long) Math.pow(2, bitsPerColorComponent) - 1;
 
         // create the output color model using RGB+alpha as color space
         ColorSpace outputCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
@@ -128,7 +128,7 @@ public class Type6ShadingContext implements PaintContext
             colRange[i] = shading.getDecodeForParameter(2 + i);
         }
         
-        ImageInputStream mciis = new MemoryCacheImageInputStream(cosStream.getFilteredStream());
+        ImageInputStream mciis = new MemoryCacheImageInputStream(cosStream.getUnfilteredStream());
         
         CubicBezierCurve implicitEdge = null;
         float[][] implicitCornerColor = new float[2][numberOfColorComponents];

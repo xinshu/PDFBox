@@ -48,7 +48,7 @@ import org.apache.pdfbox.util.Matrix;
  */
 public class Type7ShadingContext implements PaintContext
 {
-    private static final Log LOG = LogFactory.getLog(Type6ShadingContext.class);
+    private static final Log LOG = LogFactory.getLog(Type7ShadingContext.class);
     
     private ColorModel outputColorModel;
     private PDColorSpace shadingColorSpace;
@@ -101,8 +101,8 @@ public class Type7ShadingContext implements PaintContext
         
         bitsPerFlag = shading.getBitsPerFlag();
         
-        long maxSrcCoord = (int) Math.pow(2, bitsPerCoordinate) - 1;
-        long maxSrcColor = (int) Math.pow(2, bitsPerColorComponent) - 1;
+        long maxSrcCoord = (long) Math.pow(2, bitsPerCoordinate) - 1;
+        long maxSrcColor = (long) Math.pow(2, bitsPerColorComponent) - 1;
 
         // create the output color model using RGB+alpha as color space
         ColorSpace outputCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
@@ -128,7 +128,7 @@ public class Type7ShadingContext implements PaintContext
             colRange[i] = shading.getDecodeForParameter(2 + i);
         }
         
-        ImageInputStream mciis = new MemoryCacheImageInputStream(cosStream.getFilteredStream());
+        ImageInputStream mciis = new MemoryCacheImageInputStream(cosStream.getUnfilteredStream());
         Point2D[] implicitPoints = new Point2D[4];
         float[][] implicitCornerColor = new float[2][numberOfColorComponents];
         byte flag = (byte) 0;
@@ -161,7 +161,7 @@ public class Type7ShadingContext implements PaintContext
                     case 1:
                         for (int i = 0; i < 4; i++)
                         {
-                            implicitPoints[i] = current.tensorControlPoints[3][i];
+                            implicitPoints[i] = current.tensorControlPoints[i][3];
                         }
                         for (int i = 0; i < numberOfColorComponents; i++)
                         {
@@ -183,7 +183,7 @@ public class Type7ShadingContext implements PaintContext
                     case 3:
                         for (int i = 0; i < 4; i++)
                         {
-                            implicitPoints[i] = current.tensorControlPoints[0][3 - i];
+                            implicitPoints[i] = current.tensorControlPoints[3 - i][0];
                         }
                         for (int i = 0; i < numberOfColorComponents; i++)
                         {
@@ -318,7 +318,7 @@ public class Type7ShadingContext implements PaintContext
                         }
                     }
                     
-//                    CoonsPatch it = patchList.get(3);
+//                    TensorPatch it = patchList.get(0);
 //                    for (CoonsTriangle tri : it.listOfCoonsTriangle)
 //                    {
 //                        if (tri.contains(p))

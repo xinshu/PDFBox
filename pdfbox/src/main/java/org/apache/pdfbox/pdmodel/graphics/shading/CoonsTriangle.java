@@ -54,7 +54,8 @@ public class CoonsTriangle
         HashSet<Point> set = new HashSet<Point>();
         for (Point2D itp : p)
         {
-            Point np = new Point((int)itp.getX(), (int)itp.getY());
+            //Point np = new Point((int)Math.round(itp.getX()), (int)Math.round(itp.getY()));
+            Point np = new Point((int)(itp.getX() * 100), (int)(itp.getY() * 100));
             set.add(np);
         }
         return set.size();
@@ -62,27 +63,28 @@ public class CoonsTriangle
     
     public boolean contains(Point2D p)
     {
-//        if (degeneracy == 1)
-//        {
-//            return Math.abs(p.getX() - corner[0].getX()) < 1 && Math.abs(p.getY() - corner[0].getY()) < 1;
-//        }
-//        else if (degeneracy == 2)
-//        {
-//            if (Math.abs(corner[0].getX() - corner[1].getX()) < 1 && Math.abs(corner[0].getY() - corner[1].getY()) < 1 && 
-//                                !(Math.abs(corner[0].getX() - corner[2].getX()) < 1 && Math.abs(corner[0].getY() - corner[2].getY()) < 1))
-//            {
-//                //
-//            }
-//            else if (Math.abs(corner[0].getX() - corner[2].getX()) < 1 && Math.abs(corner[0].getY() - corner[2].getY()) < 1 && 
-//                    !(Math.abs(corner[0].getX() - corner[1].getX()) < 1 && Math.abs(corner[0].getY() - corner[1].getY()) < 1))
-//            {
-//                //
-//            }
-//        }
-        if (degeneracy < 3)
+        if (degeneracy == 1)
         {
-            return false;
+            return overlaps(corner[0], p) | overlaps(corner[1], p) | overlaps(corner[2], p);
         }
+        else if (degeneracy == 2)
+        {
+            if (overlaps(corner[0], corner[1]) && !overlaps(corner[0], corner[2]))
+            {
+                return isOnLine(corner[0], corner[2], p);
+            }
+            else// if (overlaps(corner[0], corner[2]) && !overlaps(corner[0], corner[1]))
+            {
+                return isOnLine(corner[0], corner[1], p);
+            }
+        }
+        
+//        if (degeneracy < 3)
+//        {
+//            System.out.println("test:" + degeneracy);
+//            return false;
+//        }
+        
         double pv0 = edgeEquationValue(p, corner[1], corner[2]);
         if (pv0 * v0 < 0)
         {
@@ -95,6 +97,48 @@ public class CoonsTriangle
         }
         double pv2 = edgeEquationValue(p, corner[0], corner[1]);
         return pv2 * v2 >= 0; // !(pv2 * v2 < 0)
+    }
+    
+    private boolean overlaps(Point2D p0, Point2D p1)
+    {
+        //return Math.round(p0.getX()) == Math.round(p1.getX()) && Math.round(p0.getY()) == Math.round(p1.getY());
+        return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
+    }
+    
+    private boolean isOnLine(Point2D p0, Point2D p1, Point2D p)
+    {
+        if (p0.getX() > p1.getX())
+        {
+            return isOnLine(p1, p0, p);
+        }
+        //if (p.getX() < (p0.getX() - 0.001 ) || p.getX() > (p1.getX() + 0.001))
+        if (p.getX() < p0.getX() || p.getX() > p1.getX())
+        {
+            return false;
+        }
+        //else if (p0.getY() < p1.getY() && (p.getY() < (p0.getY() - 0.001) || p.getY() > (p1.getY() + 0.001)))
+        else if (p0.getY() < p1.getY() && (p.getY() < p0.getY() || p.getY() > p1.getY()))
+        {
+            return false;
+        }
+        //else if (p1.getY() < p0.getY() && (p.getY() < (p1.getY() - 0.001) || p.getY() > (p0.getY() + 0.001)))
+        else if (p1.getY() < p0.getY() && (p.getY() < p1.getY() || p.getY() > p0.getY()))
+        {
+            return false;
+        }
+//        return Math.abs((p1.getY() - p0.getY()) * (p.getX() - p0.getX()) - 
+//                                (p.getY() - p0.getY()) * (p1.getX() - p0.getX())) < 2.0 * Math.abs(p1.getX() - p0.getX());
+        //return getDis(p0, p) + getDis(p1, p) - getDis(p0, p1) <= 1;
+        double x = p1.getX() - p0.getX(), y = p1.getY() - p0.getY();
+        double dx = p.getX() - p0.getX(), dy = p.getY() - p0.getY();
+        return Math.abs(y * dx - dy * x) <= Math.abs(x) || Math.abs(x * dy - y * dx) <= Math.abs(y);
+    }
+    
+    private double getDis(Point2D p0, Point2D p1)
+    {
+        double x = p1.getX() - p0.getX();
+        double y = p1.getY() - p0.getY();
+        return Math.sqrt(x * x + y * y);
     }
     
     private double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
@@ -111,19 +155,24 @@ public class CoonsTriangle
     {
         int numberOfColorComponents = color[0].length;
         float[] pCol = new float[numberOfColorComponents];
-        if (Math.abs(area) < 1e-2)
+        
+        if (degeneracy == 1)
         {
-            //if (corner[0].equals(corner[1]) && !corner[0].equals(corner[2]))
-            if (Math.abs(corner[0].getX() - corner[1].getX()) < 1 && Math.abs(corner[0].getY() - corner[1].getY()) < 1 && 
-                                !(Math.abs(corner[0].getX() - corner[2].getX()) < 1 && Math.abs(corner[0].getY() - corner[2].getY()) < 1))
+            //pCol = color[2];
+            for (int i = 0; i < numberOfColorComponents; i++)
+            {
+                pCol[i] = (color[0][i] + color[1][i] + color[2][i]) / 3.0f;
+            }
+        }
+        else if (degeneracy == 2)
+        {
+            if (overlaps(corner[1], corner[2]) && !overlaps(corner[0], corner[2]))
             {
                 pCol = getColorOnALine(p, corner[0], corner[2], color[0], color[2]);
             }
-            //else if (corner[0].equals(corner[2]) && !corner[0].equals(corner[1]))
-            else if (Math.abs(corner[0].getX() - corner[2].getX()) < 1 && Math.abs(corner[0].getY() - corner[2].getY()) < 1 && 
-                    !(Math.abs(corner[0].getX() - corner[1].getX()) < 1 && Math.abs(corner[0].getY() - corner[1].getY()) < 1))
+            else
             {
-                pCol = getColorOnALine(p, corner[0], corner[1], color[0], color[1]);
+                pCol = getColorOnALine(p, corner[1], corner[2], color[1], color[2]);
             }
         }
         else
