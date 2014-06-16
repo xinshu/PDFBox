@@ -105,7 +105,7 @@ public class TensorPatch
     
     private boolean overlaps(Point2D p0, Point2D p1)
     {
-        return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
+        return Math.abs(p0.getX() - p1.getX()) < 0.0001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
     }
     
     private CoordinateColorPair[][] getPatchCoordinatesColor()

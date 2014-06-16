@@ -292,6 +292,7 @@ public class Type7ShadingContext implements PaintContext
         return outputColorModel;
     }
     
+   // boolean count = true;
     @Override
     public final Raster getRaster(int x, int y, int w, int h)
     {
@@ -318,7 +319,37 @@ public class Type7ShadingContext implements PaintContext
                         }
                     }
                     
-//                    TensorPatch it = patchList.get(0);
+//                    for (int i = 47; i < 57; i++)
+//                    {
+//                        TensorPatch it = patchList.get(i);
+//                        if (count)
+//                        {
+//                            Point2D[][] ctl = it.tensorControlPoints;
+//                            System.out.println(i);
+//                            for (int r = 0; r < 4; r++)
+//                            {
+//                                for (int c = 0; c < 4; c++)
+//                                {
+//                                    System.out.println(ctl[r][c]);
+//                                }
+//                            }
+//                        }
+//                        for (CoonsTriangle tri : it.listOfCoonsTriangle)
+//                        {
+//                            if (tri.contains(p))
+//                            {
+//                                values = tri.getColor(p);
+//                            }
+//                        }
+//                    }
+//                    count = false;
+                    
+//                    if (values != null)
+//                    {
+//                        System.out.println ("pixel: " + p);
+//                    }
+                    
+//                    TensorPatch it = patchList.get(400);
 //                    for (CoonsTriangle tri : it.listOfCoonsTriangle)
 //                    {
 //                        if (tri.contains(p))
@@ -326,6 +357,7 @@ public class Type7ShadingContext implements PaintContext
 //                            values = tri.getColor(p);
 //                        }
 //                    }
+                    
                     if (values == null)
                     {
                         if (background != null)
