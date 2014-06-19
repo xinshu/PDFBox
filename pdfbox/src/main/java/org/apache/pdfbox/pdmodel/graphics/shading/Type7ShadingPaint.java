@@ -30,9 +30,9 @@ import org.apache.pdfbox.util.Matrix;
 
 /**
  *
- * @author Shaola
+ * @author Shaola Ren
  */
-public class Type7ShadingPaint implements Paint
+class Type7ShadingPaint implements Paint
 {
     private static final Log LOG = LogFactory.getLog(Type7ShadingPaint.class);
 

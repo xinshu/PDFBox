@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.util.Matrix;
 
-import java.awt.Color;
 import java.awt.Paint;
 
 /**

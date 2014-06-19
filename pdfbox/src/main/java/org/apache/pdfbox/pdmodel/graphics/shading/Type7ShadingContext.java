@@ -44,9 +44,9 @@ import org.apache.pdfbox.util.Matrix;
 
 /**
  *
- * @author Shaola
+ * @author Shaola Ren
  */
-public class Type7ShadingContext implements PaintContext
+class Type7ShadingContext implements PaintContext
 {
     private static final Log LOG = LogFactory.getLog(Type7ShadingContext.class);
     

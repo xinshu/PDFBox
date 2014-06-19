@@ -20,7 +20,7 @@ import java.awt.Point;
 import java.util.HashSet;
 
 /**
- *
+ * This class is not used.
  * @author Shaola
  */
 public class Triangle

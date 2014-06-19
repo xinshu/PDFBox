@@ -44,9 +44,9 @@ import org.apache.pdfbox.util.Matrix;
 
 /**
  *
- * @author Shaola
+ * @author Shaola Ren
  */
-public class Type6ShadingContext implements PaintContext
+class Type6ShadingContext implements PaintContext
 {
     private static final Log LOG = LogFactory.getLog(Type6ShadingContext.class);
     
@@ -89,11 +89,9 @@ public class Type6ShadingContext implements PaintContext
         coonsShadingType = shading;
         patchList = new ArrayList<CoonsPatch>();
         hasFunction = shading.getFunction() != null;
-        //System.out.println("has Function: " + hasFunction);
         shadingColorSpace = shading.getColorSpace();
         
         numberOfColorComponents = hasFunction ? 1 : shadingColorSpace.getNumberOfComponents();
-        //System.out.println("numberOfColorComponents: " + numberOfColorComponents);
         
         bitsPerColorComponent = shading.getBitsPerComponent();
         
@@ -130,7 +128,7 @@ public class Type6ShadingContext implements PaintContext
         
         ImageInputStream mciis = new MemoryCacheImageInputStream(cosStream.getUnfilteredStream());
         
-        CubicBezierCurve implicitEdge = null;
+        Point2D[] implicitEdge = null;
         float[][] implicitCornerColor = new float[2][numberOfColorComponents];
         
         byte flag = (byte) 0;
@@ -156,13 +154,12 @@ public class Type6ShadingContext implements PaintContext
                 }
                 patchList.add(current);
                 flag = (byte) (mciis.readBits(bitsPerFlag) & 3);
-                //System.out.println("flag: " + flag);
                 switch (flag)
                 {
                     case 0:
                         break;
                     case 1:
-                        implicitEdge = current.edgeC2;
+                        implicitEdge = current.edgeC2.clone();
                         for (int i = 0; i < numberOfColorComponents; i++)
                         {
                             implicitCornerColor[0][i] = current.cornerColor[1][i];
@@ -170,9 +167,10 @@ public class Type6ShadingContext implements PaintContext
                         }
                         break;
                     case 2:
-                        Point2D[] implicitControlPointsFlag2 = {current.edgeD2.controlPoints[3], current.edgeD2.controlPoints[2], 
-                                current.edgeD2.controlPoints[1], current.edgeD2.controlPoints[0]};
-                        implicitEdge = new CubicBezierCurve(implicitControlPointsFlag2);
+                        implicitEdge[0] = current.edgeD2[3];
+                        implicitEdge[1] = current.edgeD2[2];
+                        implicitEdge[2] = current.edgeD2[1];
+                        implicitEdge[3] = current.edgeD2[0];
                         for (int i = 0; i < numberOfColorComponents; i++)
                         {
                             implicitCornerColor[0][i] = current.cornerColor[2][i];
@@ -180,9 +178,10 @@ public class Type6ShadingContext implements PaintContext
                         }
                         break;
                     case 3:
-                        Point2D[] implicitControlPointsFlag3 = {current.edgeC1.controlPoints[3], current.edgeC1.controlPoints[2], 
-                                current.edgeC1.controlPoints[1], current.edgeC1.controlPoints[0]};
-                        implicitEdge = new CubicBezierCurve(implicitControlPointsFlag3);
+                        implicitEdge[0] = current.edgeC1[3];
+                        implicitEdge[1] = current.edgeC1[2];
+                        implicitEdge[2] = current.edgeC1[1];
+                        implicitEdge[3] = current.edgeC1[0];
                         for (int i = 0; i < numberOfColorComponents; i++)
                         {
                             implicitCornerColor[0][i] = current.cornerColor[3][i];
@@ -211,7 +210,7 @@ public class Type6ShadingContext implements PaintContext
         }
     }
     
-    private CoonsPatch readCoonsPatch(ImageInputStream input, boolean isFree, CubicBezierCurve implicitEdge, 
+    private CoonsPatch readCoonsPatch(ImageInputStream input, boolean isFree, Point2D[] implicitEdge, 
                                 float[][] implicitCornerColor, long maxSrcCoord, long maxSrcColor, 
                                 PDRange rangeX, PDRange rangeY, PDRange[] colRange, 
                                 Matrix ctm, AffineTransform xform) throws IOException
@@ -228,10 +227,10 @@ public class Type6ShadingContext implements PaintContext
         }
         else
         {
-            points[0] = implicitEdge.controlPoints[0];
-            points[1] = implicitEdge.controlPoints[1];
-            points[2] = implicitEdge.controlPoints[2];
-            points[3] = implicitEdge.controlPoints[3];
+            points[0] = implicitEdge[0];
+            points[1] = implicitEdge[1];
+            points[2] = implicitEdge[2];
+            points[3] = implicitEdge[3];
             
             for (int i = 0; i < numberOfColorComponents; i++)
             {
@@ -251,9 +250,6 @@ public class Type6ShadingContext implements PaintContext
                 Point2D tmp = new Point2D.Double(px, py);
                 transformPoint(tmp, ctm, xform);
                 points[i] = tmp;
-                //System.out.println("x: " + x + " " + maxSrcCoord + " " + rangeX.getMin() + " " + rangeX.getMax());
-                //System.out.println("y: " + y + " " + maxSrcCoord + " " + rangeY.getMin() + " " + rangeY.getMax());
-                //System.out.println("interpolate: " + tmp.getX() + " " + tmp.getY());
             }
             for (int i = cStart; i < 4; i++)
             {
@@ -261,34 +257,8 @@ public class Type6ShadingContext implements PaintContext
                 {
                     long c = input.readBits(bitsPerColorComponent);
                     color[i][j] = (float) interpolate(c, maxSrcColor, colRange[j].getMin(), colRange[j].getMax());
-                    //System.out.println("color: " + j + " " + c + " " + color[i][j]);
                 }
             }
-            
-//            if (!hasFunction){
-//                for (int i = cStart; i < 4; i++)
-//                {
-//                    for (int j = 0; j < numberOfColorComponents; j++)
-//                    {
-//                        int c = (int) input.readBits(bitsPerColorComponent);
-//                        color[i][j] = (float) interpolate(c, maxSrcColor, colRange[j].getMin(), colRange[j].getMax());
-//                        //System.out.println("color: " + j + " " + c + " " + color[i][j]);
-//                    }
-//                }
-//            }
-//            // need to edit to real value
-//            else
-//            {
-//                for (int i = cStart; i < 4; i++)
-//                {
-//                    for (int j = 0; j < numberOfColorComponents; j++)
-//                    {
-//                        color[i][j] = 0.5f;
-//                    }
-//                    int c = (int) input.readBits(bitsPerColorComponent);
-//                    //System.out.println("color: " + 0 + " " + c);
-//                }
-//            }
         }
         catch(EOFException ex)
         {
@@ -296,24 +266,24 @@ public class Type6ShadingContext implements PaintContext
             return null;
         }
         
-        CubicBezierCurve d1 = new CubicBezierCurve(new Point2D[]
-                            {
-                                points[0], points[1], points[2], points[3]
-                            });
-        CubicBezierCurve c2 = new CubicBezierCurve(new Point2D[]
-                            {
-                                points[3], points[4], points[5], points[6]
-                            });
-        CubicBezierCurve d2 = new CubicBezierCurve(new Point2D[]
-                            {
-                                //points[6], points[7], points[8], points[9]
-                                points[9], points[8], points[7], points[6]
-                            });
-        CubicBezierCurve c1 = new CubicBezierCurve(new Point2D[]
-                            {
-                                //points[9], points[10], points[11], points[0]
-                                points[0], points[11], points[10], points[9]
-                            });
+        Point2D[] d1 = new Point2D[]
+                                {
+                                    points[0], points[1], points[2], points[3]
+                                };
+        Point2D[] c2 = new Point2D[]
+                                {
+                                    points[3], points[4], points[5], points[6]
+                                };
+        Point2D[] d2 = new Point2D[]
+                                {
+                                    //points[6], points[7], points[8], points[9]
+                                    points[9], points[8], points[7], points[6]
+                                };
+        Point2D[] c1 = new Point2D[]
+                                {
+                                    //points[9], points[10], points[11], points[0]
+                                    points[0], points[11], points[10], points[9]
+                                };
         
         return new CoonsPatch(c1, c2, d1, d2, color);
     }
@@ -340,13 +310,11 @@ public class Type6ShadingContext implements PaintContext
     @Override
     public final Raster getRaster(int x, int y, int w, int h)
     {
-        // to do, need to edit the concrete content
         WritableRaster raster = getColorModel().createCompatibleWritableRaster(w, h);
         int[] data = new int[w * h * 4];
         
         if (!patchList.isEmpty() || background != null)
         {
-            //System.out.println("patchList.size(): " + patchList.size());
             for (int row = 0; row < h; row++)
             {
                 for (int col = 0; col < w; col++)
@@ -364,14 +332,6 @@ public class Type6ShadingContext implements PaintContext
                         }
                     }
                     
-//                    CoonsPatch it = patchList.get(3);
-//                    for (CoonsTriangle tri : it.listOfCoonsTriangle)
-//                    {
-//                        if (tri.contains(p))
-//                        {
-//                            values = tri.getColor(p);
-//                        }
-//                    }
                     if (values == null)
                     {
                         if (background != null)

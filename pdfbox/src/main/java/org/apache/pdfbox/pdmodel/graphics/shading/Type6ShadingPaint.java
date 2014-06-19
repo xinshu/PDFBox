@@ -30,15 +30,15 @@ import org.apache.pdfbox.util.Matrix;
 
 /**
  *
- * @author Shaola
+ * @author Shaola Ren
  */
-public class Type6ShadingPaint implements Paint
+class Type6ShadingPaint implements Paint
 {
     private static final Log LOG = LogFactory.getLog(Type6ShadingPaint.class);
 
-    private PDShadingType6 shading;
-    private Matrix ctm;
-    private int pageHeight;
+    private final PDShadingType6 shading;
+    private final Matrix ctm;
+    private final int pageHeight;
     
     /**
      * Constructor.

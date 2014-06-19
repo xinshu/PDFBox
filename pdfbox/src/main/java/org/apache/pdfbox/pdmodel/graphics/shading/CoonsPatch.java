@@ -20,16 +20,19 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 /**
- *
- * @author Shaola
+ * This class is used to describe a patch for type 6 shading.
+ * This was done as part of GSoC2014.
+ * @author Shaola Ren
  */
-public class CoonsPatch
+class CoonsPatch
 {
-    protected final CubicBezierCurve edgeC1;
-    protected final CubicBezierCurve edgeC2;
-    protected final CubicBezierCurve edgeD1;
-    protected final CubicBezierCurve edgeD2;
+    protected final Point2D[] edgeC1;
+    protected final Point2D[] edgeC2;
+    protected final Point2D[] edgeD1;
+    protected final Point2D[] edgeD2;
     protected final float[][] cornerColor;
+    
+    private final int level;
     
     protected final ArrayList<CoonsTriangle> listOfCoonsTriangle;
     
@@ -41,25 +44,46 @@ public class CoonsPatch
      * @param D2 edge D2 of the coons patch, contains 4 control points [p10, p9, p8, p7] not [p7, p8, p9, p10]
      * @param color 4 corner colors, value is as [c1, c2, c3, c4]
      */
-    public CoonsPatch(CubicBezierCurve C1, CubicBezierCurve C2, CubicBezierCurve D1, CubicBezierCurve D2, 
-                                float[][] color)
+    public CoonsPatch(Point2D[] C1, Point2D[] C2, Point2D[] D1, Point2D[] D2, float[][] color)
     {
-        edgeC1 = C1;
-        edgeC2 = C2;
-        edgeD1 = D1;
-        edgeD2 = D2;
+        edgeC1 = C1.clone();
+        edgeC2 = C2.clone();
+        edgeD1 = D1.clone();
+        edgeD2 = D2.clone();
         cornerColor = color.clone();
         
-        listOfCoonsTriangle = getCoonsTriangle();
+        level = getLevel();
+        
+        listOfCoonsTriangle = getCoonsTriangle(level);
     }
     
-    private ArrayList<CoonsTriangle> getCoonsTriangle()
+    private int getLevel()
     {
-        return getCoonsTriangle(edgeC1, edgeC2, edgeD1, edgeD2, cornerColor);
+        return 4;
     }
     
-    private ArrayList<CoonsTriangle> getCoonsTriangle(CubicBezierCurve C1, CubicBezierCurve C2, CubicBezierCurve D1, CubicBezierCurve D2, 
-                                float[][] color)
+    private double getDistance(Point2D ps, Point2D pe)
+    {
+        double x = pe.getX() - ps.getX();
+        double y = pe.getY() - ps.getY();
+        return Math.sqrt(x * x + y * y);
+    }
+    
+    private Point2D getMid(Point2D ps, Point2D pe)
+    {
+        return new Point2D.Double((ps.getX() + pe.getX()) / 2, (ps.getY() + pe.getY()) / 2);
+    }
+    
+    private ArrayList<CoonsTriangle> getCoonsTriangle(int l)
+    {
+        CubicBezierCurve eC1 = new CubicBezierCurve(edgeC1, l);
+        CubicBezierCurve eC2 = new CubicBezierCurve(edgeC2, l);
+        CubicBezierCurve eD1 = new CubicBezierCurve(edgeD1, l);
+        CubicBezierCurve eD2 = new CubicBezierCurve(edgeD2, l);
+        return getCoonsTriangle(eC1, eC2, eD1, eD2);
+    }
+    
+    private ArrayList<CoonsTriangle> getCoonsTriangle(CubicBezierCurve C1, CubicBezierCurve C2, CubicBezierCurve D1, CubicBezierCurve D2)
     {
         ArrayList<CoonsTriangle> list = new ArrayList<CoonsTriangle>();
         CoordinateColorPair[][] patchCC = getPatchCoordinatesColor(C1, C2, D1, D2); // at least 2 x 2, always square
@@ -91,17 +115,6 @@ public class CoonsPatch
                     CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
                     list.add(tmpur);
                 }
-                
-//                Point2D[] llCorner = {patchCC[i-1][j-1].coordinate, patchCC[i-1][j].coordinate, patchCC[i][j-1].coordinate}; // counter clock wise
-//                float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
-//                CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
-//                Point2D[] urCorner = {patchCC[i-1][j].coordinate, patchCC[i][j].coordinate, patchCC[i][j-1].coordinate}; // counter clock wise
-//                float[][] urColor = {patchCC[i-1][j].color, patchCC[i][j].color, patchCC[i][j-1].color};
-//                CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
-//                list.add(tmpll);
-//                list.add(tmpur);
-                //System.out.println("templl: " + tmpll.toString());
-                //System.out.println("tempur: " + tmpur.toString());
             }
         }
         return list;
@@ -137,27 +150,21 @@ public class CoonsPatch
                 double scy = (1 - v) * curveC1[j].getY() + v * curveC2[j].getY();
                 double sdx = (1 - u) * curveD1[i].getX() + u * curveD2[i].getX();
                 double sdy = (1 - u) * curveD1[i].getY() + u * curveD2[i].getY();
-                double sbx = (1 - v) * ((1 - u) * edgeC1.controlPoints[0].getX() 
-                        + u * edgeC1.controlPoints[3].getX()) 
-                        + v * ((1 - u) * edgeC2.controlPoints[0].getX() 
-                        + u * edgeC2.controlPoints[3].getX());
-                double sby = (1 - v) * ((1 - u) * edgeC1.controlPoints[0].getY() 
-                        + u * edgeC1.controlPoints[3].getY()) 
-                        + v * ((1 - u) * edgeC2.controlPoints[0].getY() 
-                        + u * edgeC2.controlPoints[3].getY());
+                double sbx = (1 - v) * ((1 - u) * edgeC1[0].getX() + u * edgeC1[3].getX()) 
+                        + v * ((1 - u) * edgeC2[0].getX() + u * edgeC2[3].getX());
+                double sby = (1 - v) * ((1 - u) * edgeC1[0].getY() + u * edgeC1[3].getY()) 
+                        + v * ((1 - u) * edgeC2[0].getY() + u * edgeC2[3].getY());
                 
                 double sx = scx + sdx - sbx;
                 double sy = scy + sdy - sby;
                 
                 Point2D tmpC = new Point2D.Double(sx, sy);
-                //System.out.println("interpolated coordinates: " + tmpC);
                 
                 float[] paramSC = new float[numberOfColorComponents];
                 for(int ci = 0; ci < numberOfColorComponents; ci++)
                 {
                     paramSC[ci] = (float) ((1 - v) * ((1 - u) * cornerColor[0][ci] + u * cornerColor[3][ci]) 
                             + v * ((1 - u) * cornerColor[1][ci] + u * cornerColor[2][ci]));
-                    //System.out.println("interpolated color: " + paramSC[ci]);
                 }
                 patchCC[i][j] = new CoordinateColorPair(tmpC, paramSC);
             }
@@ -177,28 +184,4 @@ public class CoonsPatch
         }
     }
     
-    @Override
-    public String toString()
-    {
-        String colorStr = "";
-        
-        for (float[] cornerColor1 : cornerColor)
-        {
-            for (float f : cornerColor1)
-            {
-                if (!colorStr.isEmpty())
-                {
-                    colorStr += " ";
-                }
-                colorStr += String.format("%3.2f", f);
-            }
-            colorStr += "\n";
-        }
-        
-        return "CoonsPatch {edge C1 = [" + edgeC1.toString() + "]\n" 
-                + "edge C2 = [" + edgeC2.toString() + "]\n"
-                + "edge D1 = [" + edgeD1.toString() + "]\n"
-                + "edge D2 = [" + edgeD2.toString() + "]\n"
-                + " colors=[" + colorStr + "] }";
-    }
 }

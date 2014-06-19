@@ -22,9 +22,9 @@ import java.util.HashSet;
 
 /**
  *
- * @author Shaola
+ * @author Shaola Ren
  */
-public class CoonsTriangle
+class CoonsTriangle
 {
     private final Point2D[] corner;
     private final float[][] color;
@@ -43,7 +43,6 @@ public class CoonsTriangle
         corner = p.clone();
         color = c.clone();
         area = getArea(p[0], p[1], p[2]);
-        //System.out.println("area: " + area);
         degeneracy = getDeg(p);
         
         if (degeneracy == 2)
@@ -93,34 +92,7 @@ public class CoonsTriangle
         {
             Point tp = new Point((int)Math.round(p.getX()), (int)Math.round(p.getY()));
             return line.linePoints.contains(tp);
-//            if (overlaps(corner[0], corner[1]) && !overlaps(corner[0], corner[2]))
-//            {
-//                return isOnLine(corner[0], corner[2], p);
-//            }
-//            else
-//            {
-//                return isOnLine(corner[0], corner[1], p);
-//            }
-            
-//            if (overlaps(corner[0], corner[1]) && !overlaps(corner[0], corner[2]))
-//            {
-//                return isOnLine(corner[1], corner[2], p);
-//            }
-//            else if (overlaps(corner[1], corner[2]) && !overlaps(corner[2], corner[0]))
-//            {
-//                return isOnLine(corner[2], corner[0], p);
-//            }
-//            else
-//            {
-//                return isOnLine(corner[2], corner[1], p);
-//            }
         }
-        
-//        if (degeneracy < 3)
-//        {
-//            System.out.println("test:" + degeneracy);
-//            return false;
-//        }
         
         double pv0 = edgeEquationValue(p, corner[1], corner[2]);
         if (pv0 * v0 < 0)
@@ -140,36 +112,6 @@ public class CoonsTriangle
     {
         return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
     }
-    
-//    private boolean isOnLine(Point2D p0, Point2D p1, Point2D p)
-//    {
-//        if (p0.getX() > p1.getX())
-//        {
-//            return isOnLine(p1, p0, p);
-//        }
-//        if (p.getX() < p0.getX() || p.getX() > p1.getX())
-//        {
-//            return false;
-//        }
-//        else if (p0.getY() < p1.getY() && (p.getY() < p0.getY() || p.getY() > p1.getY()))
-//        {
-//            return false;
-//        }
-//        else if (p1.getY() < p0.getY() && (p.getY() < p1.getY() || p.getY() > p0.getY()))
-//        {
-//            return false;
-//        }
-//        double x = p1.getX() - p0.getX(), y = p1.getY() - p0.getY();
-//        double dx = p.getX() - p0.getX(), dy = p.getY() - p0.getY();
-//        return Math.abs(y * dx - dy * x) <= Math.abs(x) || Math.abs(x * dy - y * dx) <= Math.abs(y);
-//    }
-    
-//    private double getDis(Point2D p0, Point2D p1)
-//    {
-//        double x = p1.getX() - p0.getX();
-//        double y = p1.getY() - p0.getY();
-//        return Math.sqrt(x * x + y * y);
-//    }
     
     private double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
     {
@@ -198,27 +140,6 @@ public class CoonsTriangle
         {
             Point tp = new Point((int)Math.round(p.getX()), (int)Math.round(p.getY()));
             return line.getColor(tp);
-//            if (overlaps(corner[1], corner[2]) && !overlaps(corner[0], corner[2]))
-//            {
-//                pCol = getColorOnALine(p, corner[0], corner[2], color[0], color[2]);
-//            }
-//            else
-//            {
-//                pCol = getColorOnALine(p, corner[1], corner[2], color[1], color[2]);
-//            }
-            
-//            if (overlaps(corner[0], corner[1]) && !overlaps(corner[0], corner[2]))
-//            {
-//                pCol = getColorOnALine(p, corner[1], corner[2], color[1], color[2]);
-//            }
-//            else if (overlaps(corner[1], corner[2]) && !overlaps(corner[2], corner[0]))
-//            {
-//                pCol = getColorOnALine(p, corner[2], corner[0], color[2], color[0]);
-//            }
-//            else
-//            {
-//                pCol = getColorOnALine(p, corner[2], corner[1], color[2], color[1]);
-//            }
         }
         else
         {
@@ -232,29 +153,6 @@ public class CoonsTriangle
         }
         return pCol;
     }
-    
-//    private float[] getColorOnALine(Point2D p, Point2D a, Point2D b, float[] ac, float[] bc)
-//    {
-//        int numberOfColorComponents = ac.length;
-//        float[] pc = new float[numberOfColorComponents];
-//        if (Math.abs(a.getX() - b.getX()) < 0.001)
-//        {
-//            double l = b.getY() - a.getY();
-//            for (int i = 0; i < numberOfColorComponents; i++)
-//            {
-//                pc[i] = (float) (ac[i] * (b.getY() - p.getY()) / l + bc[i] * (p.getY() - a.getY()) / l);
-//            }
-//        }
-//        else
-//        {
-//            double l = b.getX() - a.getX();
-//            for (int i = 0; i < numberOfColorComponents; i++)
-//            {
-//                pc[i] = (float) (ac[i] * (b.getX() - p.getX()) / l + bc[i] * (p.getX() - a.getX()) / l);
-//            }
-//        }
-//        return pc;
-//    }
     
     @Override
     public String toString()

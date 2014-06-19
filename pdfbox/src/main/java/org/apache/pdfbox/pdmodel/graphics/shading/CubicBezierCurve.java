@@ -19,14 +19,16 @@ package org.apache.pdfbox.pdmodel.graphics.shading;
 import java.awt.geom.Point2D;
 
 /**
- *
- * @author Shaola
+ * This class is used to describe the edge of each patch for type 6 shading.
+ * This was done as part of GSoC2014.
+ * @author Shaola Ren
  */
-public class CubicBezierCurve
+
+class CubicBezierCurve
 {
     protected final Point2D[] controlPoints;
     
-    private final int level = 4;
+    private final int level;
     private final Point2D[] curve;
     
     /**
@@ -34,10 +36,11 @@ public class CubicBezierCurve
      * @param ctrlPnts, [p0, p1, p2, p3]
      */
     
-    public CubicBezierCurve(Point2D[] ctrlPnts)
+    public CubicBezierCurve(Point2D[] ctrlPnts, int l)
     {
         controlPoints = ctrlPnts.clone();
-        curve = getPoints(ctrlPnts, level);
+        level = l;
+        curve = getPoints(level);
     }
     
     public int getLevel()
@@ -45,7 +48,7 @@ public class CubicBezierCurve
         return level;
     }
     
-    private Point2D[] getPoints(Point2D[] ctrlPnts, int l)
+    private Point2D[] getPoints(int l)
     {
         if (l < 0)
         {
@@ -67,14 +70,8 @@ public class CubicBezierCurve
                     3 * t * t * (1 - t) * controlPoints[2].getY() + 
                     t * t * t * controlPoints[3].getY();
             res[i] = new Point2D.Double(tmpX, tmpY);
-            //System.out.println("Bezier edge coordinates: " + res[i]);
         }
         return res;
-    }
-    
-    private Point2D getMid(Point2D ps, Point2D pe)
-    {
-        return new Point2D.Double((ps.getX() + pe.getX()) / 2, (ps.getY() + pe.getY()) / 2);
     }
     
     public Point2D[] getCubicBezierCurve()

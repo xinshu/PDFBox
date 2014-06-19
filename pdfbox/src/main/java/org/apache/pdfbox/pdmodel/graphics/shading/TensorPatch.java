@@ -21,13 +21,13 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Shaola
+ * @author Shaola Ren
  */
-public class TensorPatch
+class TensorPatch
 {
     protected final Point2D[][] tensorControlPoints;
     protected final float[][] cornerColor;
-    private final int level = 4;
+    private final int level;
     
     protected final ArrayList<CoonsTriangle> listOfCoonsTriangle;
     
@@ -35,6 +35,7 @@ public class TensorPatch
     {
         tensorControlPoints = reshapeControlPoints(tcp);
         cornerColor = color.clone();
+        level = getLevel();
         listOfCoonsTriangle = getCoonsTriangle();
     }
     
@@ -55,6 +56,11 @@ public class TensorPatch
         square[1][1] = tcp[12];
         square[2][1] = tcp[15];
         return square;
+    }
+    
+    private int getLevel()
+    {
+        return 3;
     }
     
     private ArrayList<CoonsTriangle> getCoonsTriangle()
@@ -89,15 +95,6 @@ public class TensorPatch
                     CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
                     list.add(tmpur);
                 }
-                
-//                Point2D[] llCorner = {p0, p1, p3}; // counter clock wise
-//                float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
-//                CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
-//                list.add(tmpll);
-//                Point2D[] urCorner = {p3, p1, p2}; // counter clock wise
-//                float[][] urColor = {patchCC[i][j-1].color, patchCC[i-1][j].color, patchCC[i][j].color};
-//                CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
-//                list.add(tmpur);
             }
         }
         return list;
@@ -141,7 +138,6 @@ public class TensorPatch
                 {
                     paramSC[ci] = (float) ((1 - v) * ((1 - u) * cornerColor[0][ci] + u * cornerColor[3][ci]) 
                             + v * ((1 - u) * cornerColor[1][ci] + u * cornerColor[2][ci]));
-                    //System.out.println("interpolated color: " + paramSC[ci]);
                 }
                 patchCC[k][l] = new CoordinateColorPair(tmpC, paramSC);
             }

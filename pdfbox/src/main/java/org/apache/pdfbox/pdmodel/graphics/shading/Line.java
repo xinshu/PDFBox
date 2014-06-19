@@ -21,9 +21,9 @@ import java.util.HashSet;
 
 /**
  *
- * @author Shaola
+ * @author Shaola Ren
  */
-public class Line
+class Line
 {
     private final Point point0;
     private final Point point1;
