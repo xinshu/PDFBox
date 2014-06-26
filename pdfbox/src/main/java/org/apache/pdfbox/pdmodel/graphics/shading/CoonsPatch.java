@@ -32,7 +32,7 @@ class CoonsPatch
     protected final Point2D[] edgeD2;
     protected final float[][] cornerColor;
     
-    private final int level;
+    private final int[] level; // {levelU, levelV}
     
     protected final ArrayList<CoonsTriangle> listOfCoonsTriangle;
     
@@ -52,21 +52,76 @@ class CoonsPatch
         edgeD2 = D2.clone();
         cornerColor = color.clone();
         
-        level = getLevel();
+        level = setLevel();
         
         listOfCoonsTriangle = getCoonsTriangle(level);
     }
     
-    private int getLevel()
+    private int[] setLevel()
     {
-        return 4;
+        int[] l = {4, 4};
+        if (isEdgeALine(edgeC1) & isEdgeALine(edgeC2))
+        {
+            double lc1 = getLen(edgeC1[0], edgeC1[3]), lc2 = getLen(edgeC2[0], edgeC2[3]);
+            if (lc1 > 800 || lc2 > 800)
+            {
+                l[0] = 4;
+            }
+            else if (lc1 > 400 || lc2 > 400)
+            {
+                l[0] = 3;
+            }
+            else if (lc1 > 200 || lc2 > 200)
+            {
+                l[0] = 2;
+            }
+            else
+            {
+                l[0] = 1;
+            }
+        }
+        if (isEdgeALine(edgeD1) & isEdgeALine(edgeD2))
+        {
+            double ld1 = getLen(edgeD1[0], edgeD1[3]), ld2 = getLen(edgeD2[0], edgeD2[3]);
+            if (ld1 > 800 || ld2 > 800)
+            {
+                l[1] = 4;
+            }
+            else if (ld1 > 400 || ld2 > 400)
+            {
+                l[1] = 3;
+            }
+            else if (ld1 > 200 || ld2 > 200)
+            {
+                l[1] = 2;
+            }
+            else
+            {
+                l[1] = 1;
+            }
+        }
+        return l;
     }
     
-    private double getDistance(Point2D ps, Point2D pe)
+    private double getLen(Point2D ps, Point2D pe)
     {
         double x = pe.getX() - ps.getX();
         double y = pe.getY() - ps.getY();
         return Math.sqrt(x * x + y * y);
+    }
+    
+    private boolean isEdgeALine(Point2D[] ctl)
+    {
+        double ctl1 = Math.abs(edgeEquationValue(ctl[1], ctl[0], ctl[3]));
+        double ctl2 = Math.abs(edgeEquationValue(ctl[2], ctl[0], ctl[3]));
+        double x = Math.abs(ctl[0].getX() - ctl[3].getX());
+        double y = Math.abs(ctl[0].getY() - ctl[3].getY());
+        return (ctl1 <= x && ctl2 <= x) || (ctl1 <= y && ctl2 <= y);
+    }
+    
+    private double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
+    {
+        return (p2.getY() - p1.getY()) * (p.getX() - p1.getX()) - (p2.getX() - p1.getX()) * (p.getY() - p1.getY());
     }
     
     private Point2D getMid(Point2D ps, Point2D pe)
@@ -74,12 +129,12 @@ class CoonsPatch
         return new Point2D.Double((ps.getX() + pe.getX()) / 2, (ps.getY() + pe.getY()) / 2);
     }
     
-    private ArrayList<CoonsTriangle> getCoonsTriangle(int l)
+    private ArrayList<CoonsTriangle> getCoonsTriangle(int[] l)
     {
-        CubicBezierCurve eC1 = new CubicBezierCurve(edgeC1, l);
-        CubicBezierCurve eC2 = new CubicBezierCurve(edgeC2, l);
-        CubicBezierCurve eD1 = new CubicBezierCurve(edgeD1, l);
-        CubicBezierCurve eD2 = new CubicBezierCurve(edgeD2, l);
+        CubicBezierCurve eC1 = new CubicBezierCurve(edgeC1, l[0]);
+        CubicBezierCurve eC2 = new CubicBezierCurve(edgeC2, l[0]);
+        CubicBezierCurve eD1 = new CubicBezierCurve(edgeD1, l[1]);
+        CubicBezierCurve eD2 = new CubicBezierCurve(edgeD2, l[1]);
         return getCoonsTriangle(eC1, eC2, eD1, eD2);
     }
     
@@ -87,10 +142,11 @@ class CoonsPatch
     {
         ArrayList<CoonsTriangle> list = new ArrayList<CoonsTriangle>();
         CoordinateColorPair[][] patchCC = getPatchCoordinatesColor(C1, C2, D1, D2); // at least 2 x 2, always square
-        int sz = patchCC.length;
-        for (int i = 1; i < sz; i++)
+        int szV = patchCC.length;
+        int szU = patchCC[0].length;
+        for (int i = 1; i < szV; i++)
         {
-            for (int j = 1; j < sz; j++)
+            for (int j = 1; j < szU; j++)
             {
                 Point2D p0 = patchCC[i-1][j-1].coordinate, p1 = patchCC[i-1][j].coordinate, p2 = patchCC[i][j].coordinate, 
                                 p3 = patchCC[i][j-1].coordinate;
@@ -133,19 +189,21 @@ class CoonsPatch
         Point2D[] curveD2 = D2.getCubicBezierCurve();
         
         int numberOfColorComponents = cornerColor[0].length;
-        int sz = curveC1.length;
+        int szV = curveD1.length;
+        int szU = curveC1.length;
         
-        CoordinateColorPair[][] patchCC = new CoordinateColorPair[sz][sz];
+        CoordinateColorPair[][] patchCC = new CoordinateColorPair[szV][szU];
         
-        double step = (double) 1 / (sz - 1);
-        double v = - step;
-        for(int i = 0; i < sz; i++)
+        double stepV = (double) 1 / (szV - 1);
+        double stepU = (double) 1 / (szU - 1);
+        double v = - stepV;
+        for(int i = 0; i < szV; i++)
         {
-            v += step;
-            double u = - step;
-            for(int j = 0; j < sz; j++)
+            v += stepV;
+            double u = - stepU;
+            for(int j = 0; j < szU; j++)
             {
-                u += step;
+                u += stepU;
                 double scx = (1 - v) * curveC1[j].getX() + v * curveC2[j].getX();
                 double scy = (1 - v) * curveC1[j].getY() + v * curveC2[j].getY();
                 double sdx = (1 - u) * curveD1[i].getX() + u * curveD2[i].getX();

@@ -209,8 +209,8 @@ class Type7ShadingContext implements PaintContext
         if (ctm != null)
         {
             ctm.createAffineTransform().transform(p, p);
-            xform.transform(p, p);
         }
+        xform.transform(p, p);
     }
     
     private TensorPatch readTensorPatch(ImageInputStream input, boolean isFree, Point2D[] implicitPoints, 
@@ -296,7 +296,6 @@ class Type7ShadingContext implements PaintContext
     @Override
     public final Raster getRaster(int x, int y, int w, int h)
     {
-        // to do, need to edit the concrete content
         WritableRaster raster = getColorModel().createCompatibleWritableRaster(w, h);
         int[] data = new int[w * h * 4];
         if (!patchList.isEmpty() || background != null)
@@ -319,37 +318,7 @@ class Type7ShadingContext implements PaintContext
                         }
                     }
                     
-//                    for (int i = 47; i < 57; i++)
-//                    {
-//                        TensorPatch it = patchList.get(i);
-//                        if (count)
-//                        {
-//                            Point2D[][] ctl = it.tensorControlPoints;
-//                            System.out.println(i);
-//                            for (int r = 0; r < 4; r++)
-//                            {
-//                                for (int c = 0; c < 4; c++)
-//                                {
-//                                    System.out.println(ctl[r][c]);
-//                                }
-//                            }
-//                        }
-//                        for (CoonsTriangle tri : it.listOfCoonsTriangle)
-//                        {
-//                            if (tri.contains(p))
-//                            {
-//                                values = tri.getColor(p);
-//                            }
-//                        }
-//                    }
-//                    count = false;
-                    
-//                    if (values != null)
-//                    {
-//                        System.out.println ("pixel: " + p);
-//                    }
-                    
-//                    TensorPatch it = patchList.get(400);
+//                    TensorPatch it = patchList.get(0);
 //                    for (CoonsTriangle tri : it.listOfCoonsTriangle)
 //                    {
 //                        if (tri.contains(p))

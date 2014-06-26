@@ -128,7 +128,7 @@ class Type6ShadingContext implements PaintContext
         
         ImageInputStream mciis = new MemoryCacheImageInputStream(cosStream.getUnfilteredStream());
         
-        Point2D[] implicitEdge = null;
+        Point2D[] implicitEdge = new Point2D[4];
         float[][] implicitCornerColor = new float[2][numberOfColorComponents];
         
         byte flag = (byte) 0;
@@ -206,8 +206,8 @@ class Type6ShadingContext implements PaintContext
         if (ctm != null)
         {
             ctm.createAffineTransform().transform(p, p);
-            xform.transform(p, p);
         }
+        xform.transform(p, p);
     }
     
     private CoonsPatch readCoonsPatch(ImageInputStream input, boolean isFree, Point2D[] implicitEdge, 
