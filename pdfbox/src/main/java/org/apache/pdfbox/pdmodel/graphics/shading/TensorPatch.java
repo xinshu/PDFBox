@@ -23,18 +23,12 @@ import java.util.ArrayList;
  *
  * @author Shaola Ren
  */
-class TensorPatch
-{
-    protected final Point2D[][] tensorControlPoints;
-    protected final float[][] cornerColor;
-    private final int[] level; // {levelU, levelV}
-    
-    protected final ArrayList<CoonsTriangle> listOfCoonsTriangle;
-    
+class TensorPatch extends Patch
+{  
     public TensorPatch(Point2D[] tcp, float[][] color)
     {
-        tensorControlPoints = reshapeControlPoints(tcp);
-        cornerColor = color.clone();
+        super(tcp, color);
+        controlPoints = reshapeControlPoints(tcp);
         level = setLevel();
         listOfCoonsTriangle = getCoonsTriangle();
     }
@@ -66,13 +60,13 @@ class TensorPatch
         Point2D[] ctlC2 = new Point2D[4];
         for (int j = 0; j < 4; j++)
         {
-            ctlC1[j] = tensorControlPoints[j][0];
-            ctlC2[j] = tensorControlPoints[j][3];
+            ctlC1[j] = controlPoints[j][0];
+            ctlC2[j] = controlPoints[j][3];
         }
         if (isEdgeALine(ctlC1) & isEdgeALine(ctlC2))
         {
-            if (isOnSameSideCC(tensorControlPoints[1][1]) | isOnSameSideCC(tensorControlPoints[1][2]) |
-                                isOnSameSideCC(tensorControlPoints[2][1]) | isOnSameSideCC(tensorControlPoints[2][2]))
+            if (isOnSameSideCC(controlPoints[1][1]) | isOnSameSideCC(controlPoints[1][2]) |
+                                isOnSameSideCC(controlPoints[2][1]) | isOnSameSideCC(controlPoints[2][2]))
             {
             }
             else
@@ -80,7 +74,6 @@ class TensorPatch
                 double lc1 = getLen(ctlC1[0], ctlC1[3]), lc2 = getLen(ctlC2[0], ctlC2[3]);
                 if (lc1 > 800 || lc2 > 800)
                 {
-                    l[0] = 4;
                 }
                 else if (lc1 > 400 || lc2 > 400)
                 {
@@ -97,19 +90,18 @@ class TensorPatch
             }
         }
         
-        if (isEdgeALine(tensorControlPoints[0]) & isEdgeALine(tensorControlPoints[3]))
+        if (isEdgeALine(controlPoints[0]) & isEdgeALine(controlPoints[3]))
         {
-            if (isOnSameSideDD(tensorControlPoints[1][1]) | isOnSameSideDD(tensorControlPoints[1][2]) |
-                                isOnSameSideDD(tensorControlPoints[2][1]) | isOnSameSideDD(tensorControlPoints[2][2]))
+            if (isOnSameSideDD(controlPoints[1][1]) | isOnSameSideDD(controlPoints[1][2]) |
+                                isOnSameSideDD(controlPoints[2][1]) | isOnSameSideDD(controlPoints[2][2]))
             {
             }
             else
             {
-                double ld1 = getLen(tensorControlPoints[0][0], tensorControlPoints[0][3]);
-                double ld2 = getLen(tensorControlPoints[3][0], tensorControlPoints[3][3]);
+                double ld1 = getLen(controlPoints[0][0], controlPoints[0][3]);
+                double ld2 = getLen(controlPoints[3][0], controlPoints[3][3]);
                 if (ld1 > 800 || ld2 > 800)
                 {
-                    l[1] = 4;
                 }
                 else if (ld1 > 400 || ld2 > 400)
                 {
@@ -128,90 +120,57 @@ class TensorPatch
         return l;
     }
     
-    private double getLen(Point2D ps, Point2D pe)
-    {
-        double x = pe.getX() - ps.getX();
-        double y = pe.getY() - ps.getY();
-        return Math.sqrt(x * x + y * y);
-    }
-    
     private boolean isOnSameSideCC(Point2D p)
     {
-        double cc = edgeEquationValue(p, tensorControlPoints[0][0], tensorControlPoints[3][0]) * 
-                                edgeEquationValue(p, tensorControlPoints[0][3], tensorControlPoints[3][3]);
+        double cc = edgeEquationValue(p, controlPoints[0][0], controlPoints[3][0]) * 
+                                edgeEquationValue(p, controlPoints[0][3], controlPoints[3][3]);
         return cc > 0;
     }
     
     private boolean isOnSameSideDD(Point2D p)
     {
-        double dd = edgeEquationValue(p, tensorControlPoints[0][0], tensorControlPoints[0][3]) * 
-                                edgeEquationValue(p, tensorControlPoints[3][0], tensorControlPoints[3][3]);
+        double dd = edgeEquationValue(p, controlPoints[0][0], controlPoints[0][3]) * 
+                                edgeEquationValue(p, controlPoints[3][0], controlPoints[3][3]);
         return dd > 0;
-    }
-    
-    private boolean isEdgeALine(Point2D[] ctl)
-    {
-//        HashSet<Integer> setX = new HashSet<Integer>();
-//        HashSet<Integer> setY = new HashSet<Integer>();
-//        for (Point2D p : ctl)
-//        {
-//            setX.add((int)(p.getX() * 1000));
-//            setY.add((int)(p.getY() * 1000));
-//        }
-//        return setX.size() == 1 || setY.size() == 1;
-        double ctl1 = Math.abs(edgeEquationValue(ctl[1], ctl[0], ctl[3]));
-        double ctl2 = Math.abs(edgeEquationValue(ctl[2], ctl[0], ctl[3]));
-        double x = Math.abs(ctl[0].getX() - ctl[3].getX());
-        double y = Math.abs(ctl[0].getY() - ctl[3].getY());
-        return (ctl1 <= x && ctl2 <= x) || (ctl1 <= y && ctl2 <= y);
-    }
-    
-    private double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
-    {
-        return (p2.getY() - p1.getY()) * (p.getX() - p1.getX()) - (p2.getX() - p1.getX()) * (p.getY() - p1.getY());
     }
     
     private ArrayList<CoonsTriangle> getCoonsTriangle()
     {
-        ArrayList<CoonsTriangle> list = new ArrayList<CoonsTriangle>();
         CoordinateColorPair[][] patchCC = getPatchCoordinatesColor();
-        int szV = patchCC.length;
-        int szU = patchCC[0].length;
-        for (int i = 1; i < szV; i++)
-        {
-            for (int j = 1; j < szU; j++)
-            {
-                Point2D p0 = patchCC[i-1][j-1].coordinate, p1 = patchCC[i-1][j].coordinate, p2 = patchCC[i][j].coordinate, 
-                                p3 = patchCC[i][j-1].coordinate;
-                boolean ll = true;
-                if (overlaps(p0, p1) || overlaps(p0, p3))
-                {
-                    ll = false;
-                }
-                else{
-                    Point2D[] llCorner = {p0, p1, p3}; // counter clock wise
-                    float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
-                    CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
-                    list.add(tmpll);
-                }
-                if (ll && (overlaps(p2, p1) || overlaps(p2, p3)))
-                {
-                }
-                else
-                {
-                    Point2D[] urCorner = {p3, p1, p2}; // counter clock wise
-                    float[][] urColor = {patchCC[i][j-1].color, patchCC[i-1][j].color, patchCC[i][j].color};
-                    CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
-                    list.add(tmpur);
-                }
-            }
-        }
-        return list;
+        return getCoonsTriangle(patchCC);
     }
     
-    private boolean overlaps(Point2D p0, Point2D p1)
+    @Override
+    protected Point2D[] getFlag1Edge()
     {
-        return Math.abs(p0.getX() - p1.getX()) < 0.0001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
+        Point2D[] implicitEdge = new Point2D[4];
+        for (int i = 0; i < 4; i++)
+        {
+            implicitEdge[i] = controlPoints[i][3];
+        }
+        return implicitEdge;
+    }
+    
+    @Override
+    protected Point2D[] getFlag2Edge()
+    {
+        Point2D[] implicitEdge = new Point2D[4];
+        for (int i = 0; i < 4; i++)
+        {
+            implicitEdge[i] = controlPoints[3][3 - i];
+        }
+        return implicitEdge;
+    }
+    
+    @Override
+    protected Point2D[] getFlag3Edge()
+    {
+        Point2D[] implicitEdge = new Point2D[4];
+        for (int i = 0; i < 4; i++)
+        {
+            implicitEdge[i] = controlPoints[3 - i][0];
+        }
+        return implicitEdge;
     }
     
     private CoordinateColorPair[][] getPatchCoordinatesColor()
@@ -223,8 +182,6 @@ class TensorPatch
         int szV = bernsteinPolyV[0].length;
         CoordinateColorPair[][] patchCC = new CoordinateColorPair[szV][szU];
         
-        //double stepU = (double) 1 / (szU - 1);
-        //double stepV = (double) 1 / (szV - 1);
         double stepU = 1.0 / (szU - 1);
         double stepV = 1.0 / (szV - 1);
         double v = -stepV;
@@ -240,8 +197,8 @@ class TensorPatch
                 {
                     for (int j = 0; j < 4; j++)
                     {
-                        tmpx += tensorControlPoints[i][j].getX() * bernsteinPolyU[i][l] * bernsteinPolyV[j][k];
-                        tmpy += tensorControlPoints[i][j].getY() * bernsteinPolyU[i][l] * bernsteinPolyV[j][k];
+                        tmpx += controlPoints[i][j].getX() * bernsteinPolyU[i][l] * bernsteinPolyV[j][k];
+                        tmpy += controlPoints[i][j].getY() * bernsteinPolyU[i][l] * bernsteinPolyV[j][k];
                     }
                 }
                 Point2D tmpC = new Point2D.Double(tmpx, tmpy);
@@ -274,17 +231,5 @@ class TensorPatch
             poly[3][i] = t * t * t;
         }
         return poly;
-    }
-    
-    private class CoordinateColorPair
-    {
-        final Point2D coordinate;
-        final float[] color;
-        
-        CoordinateColorPair(Point2D p, float[] c)
-        {
-            coordinate = p;
-            color = c.clone();
-        }
     }
 }

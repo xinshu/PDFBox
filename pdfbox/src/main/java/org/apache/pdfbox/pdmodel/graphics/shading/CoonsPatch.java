@@ -24,18 +24,8 @@ import java.util.ArrayList;
  * This was done as part of GSoC2014.
  * @author Shaola Ren
  */
-class CoonsPatch
-{
-    protected final Point2D[] edgeC1;
-    protected final Point2D[] edgeC2;
-    protected final Point2D[] edgeD1;
-    protected final Point2D[] edgeD2;
-    protected final float[][] cornerColor;
-    
-    private final int[] level; // {levelU, levelV}
-    
-    protected final ArrayList<CoonsTriangle> listOfCoonsTriangle;
-    
+class CoonsPatch extends Patch
+{   
     /**
      * Constructor for using 4 edges and color of 4 corners
      * @param C1 edge C1 of the coons patch, contains 4 control points [p1, p12, p11, p10] not [p10, p11, p12, p1]
@@ -44,28 +34,47 @@ class CoonsPatch
      * @param D2 edge D2 of the coons patch, contains 4 control points [p10, p9, p8, p7] not [p7, p8, p9, p10]
      * @param color 4 corner colors, value is as [c1, c2, c3, c4]
      */
-    public CoonsPatch(Point2D[] C1, Point2D[] C2, Point2D[] D1, Point2D[] D2, float[][] color)
+    protected CoonsPatch(Point2D[] points, float[][] color)
     {
-        edgeC1 = C1.clone();
-        edgeC2 = C2.clone();
-        edgeD1 = D1.clone();
-        edgeD2 = D2.clone();
-        cornerColor = color.clone();
-        
+        super(points, color);
+        controlPoints = reshapeControlPoints(points);
         level = setLevel();
-        
-        listOfCoonsTriangle = getCoonsTriangle(level);
+        listOfCoonsTriangle = getCoonsTriangle();
+    }
+    
+    private Point2D[][] reshapeControlPoints(Point2D[] points)
+    {
+        Point2D[][] fourRows = new Point2D[4][4];
+        fourRows[2] = new Point2D[]
+                                {
+                                    points[0], points[1], points[2], points[3]
+                                }; // d1
+        fourRows[1] = new Point2D[]
+                                {
+                                    points[3], points[4], points[5], points[6]
+                                }; // c2
+        fourRows[3] = new Point2D[]
+                                {
+                                    //points[6], points[7], points[8], points[9]
+                                    points[9], points[8], points[7], points[6]
+                                }; // d2
+        fourRows[0] = new Point2D[]
+                                {
+                                    //points[9], points[10], points[11], points[0]
+                                    points[0], points[11], points[10], points[9]
+                                }; // c1
+        return fourRows;
     }
     
     private int[] setLevel()
     {
         int[] l = {4, 4};
-        if (isEdgeALine(edgeC1) & isEdgeALine(edgeC2))
+        if (isEdgeALine(controlPoints[0]) & isEdgeALine(controlPoints[1]))
         {
-            double lc1 = getLen(edgeC1[0], edgeC1[3]), lc2 = getLen(edgeC2[0], edgeC2[3]);
+            double lc1 = getLen(controlPoints[0][0], controlPoints[0][3]), 
+                                lc2 = getLen(controlPoints[1][0], controlPoints[1][3]);
             if (lc1 > 800 || lc2 > 800)
             {
-                l[0] = 4;
             }
             else if (lc1 > 400 || lc2 > 400)
             {
@@ -80,12 +89,12 @@ class CoonsPatch
                 l[0] = 1;
             }
         }
-        if (isEdgeALine(edgeD1) & isEdgeALine(edgeD2))
+        if (isEdgeALine(controlPoints[2]) & isEdgeALine(controlPoints[3]))
         {
-            double ld1 = getLen(edgeD1[0], edgeD1[3]), ld2 = getLen(edgeD2[0], edgeD2[3]);
+            double ld1 = getLen(controlPoints[2][0], controlPoints[2][3]), 
+                                ld2 = getLen(controlPoints[3][0], controlPoints[3][3]);
             if (ld1 > 800 || ld2 > 800)
             {
-                l[1] = 4;
             }
             else if (ld1 > 400 || ld2 > 400)
             {
@@ -102,83 +111,43 @@ class CoonsPatch
         }
         return l;
     }
-    
-    private double getLen(Point2D ps, Point2D pe)
+
+    private ArrayList<CoonsTriangle> getCoonsTriangle()
     {
-        double x = pe.getX() - ps.getX();
-        double y = pe.getY() - ps.getY();
-        return Math.sqrt(x * x + y * y);
+        CubicBezierCurve eC1 = new CubicBezierCurve(controlPoints[0], level[0]);
+        CubicBezierCurve eC2 = new CubicBezierCurve(controlPoints[1], level[0]);
+        CubicBezierCurve eD1 = new CubicBezierCurve(controlPoints[2], level[1]);
+        CubicBezierCurve eD2 = new CubicBezierCurve(controlPoints[3], level[1]);
+        CoordinateColorPair[][] patchCC = getPatchCoordinatesColor(eC1, eC2, eD1, eD2);
+        return getCoonsTriangle(patchCC);
     }
     
-    private boolean isEdgeALine(Point2D[] ctl)
+    @Override
+    protected Point2D[] getFlag1Edge()
     {
-        double ctl1 = Math.abs(edgeEquationValue(ctl[1], ctl[0], ctl[3]));
-        double ctl2 = Math.abs(edgeEquationValue(ctl[2], ctl[0], ctl[3]));
-        double x = Math.abs(ctl[0].getX() - ctl[3].getX());
-        double y = Math.abs(ctl[0].getY() - ctl[3].getY());
-        return (ctl1 <= x && ctl2 <= x) || (ctl1 <= y && ctl2 <= y);
+        return controlPoints[1].clone();
     }
     
-    private double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
+    @Override
+    protected Point2D[] getFlag2Edge()
     {
-        return (p2.getY() - p1.getY()) * (p.getX() - p1.getX()) - (p2.getX() - p1.getX()) * (p.getY() - p1.getY());
+        Point2D[] implicitEdge = new Point2D[4];
+        implicitEdge[0] = controlPoints[3][3];
+        implicitEdge[1] = controlPoints[3][2];
+        implicitEdge[2] = controlPoints[3][1];
+        implicitEdge[3] = controlPoints[3][0];
+        return implicitEdge;
     }
     
-    private Point2D getMid(Point2D ps, Point2D pe)
+    @Override
+    protected Point2D[] getFlag3Edge()
     {
-        return new Point2D.Double((ps.getX() + pe.getX()) / 2, (ps.getY() + pe.getY()) / 2);
-    }
-    
-    private ArrayList<CoonsTriangle> getCoonsTriangle(int[] l)
-    {
-        CubicBezierCurve eC1 = new CubicBezierCurve(edgeC1, l[0]);
-        CubicBezierCurve eC2 = new CubicBezierCurve(edgeC2, l[0]);
-        CubicBezierCurve eD1 = new CubicBezierCurve(edgeD1, l[1]);
-        CubicBezierCurve eD2 = new CubicBezierCurve(edgeD2, l[1]);
-        return getCoonsTriangle(eC1, eC2, eD1, eD2);
-    }
-    
-    private ArrayList<CoonsTriangle> getCoonsTriangle(CubicBezierCurve C1, CubicBezierCurve C2, CubicBezierCurve D1, CubicBezierCurve D2)
-    {
-        ArrayList<CoonsTriangle> list = new ArrayList<CoonsTriangle>();
-        CoordinateColorPair[][] patchCC = getPatchCoordinatesColor(C1, C2, D1, D2); // at least 2 x 2, always square
-        int szV = patchCC.length;
-        int szU = patchCC[0].length;
-        for (int i = 1; i < szV; i++)
-        {
-            for (int j = 1; j < szU; j++)
-            {
-                Point2D p0 = patchCC[i-1][j-1].coordinate, p1 = patchCC[i-1][j].coordinate, p2 = patchCC[i][j].coordinate, 
-                                p3 = patchCC[i][j-1].coordinate;
-                boolean ll = true;
-                if (overlaps(p0, p1) || overlaps(p0, p3))
-                {
-                    ll = false;
-                }
-                else{
-                    Point2D[] llCorner = {p0, p1, p3}; // counter clock wise
-                    float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
-                    CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
-                    list.add(tmpll);
-                }
-                if (ll && (overlaps(p2, p1) || overlaps(p2, p3)))
-                {
-                }
-                else
-                {
-                    Point2D[] urCorner = {p3, p1, p2}; // counter clock wise
-                    float[][] urColor = {patchCC[i][j-1].color, patchCC[i-1][j].color, patchCC[i][j].color};
-                    CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
-                    list.add(tmpur);
-                }
-            }
-        }
-        return list;
-    }
-    
-    private boolean overlaps(Point2D p0, Point2D p1)
-    {
-        return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
+        Point2D[] implicitEdge = new Point2D[4];
+        implicitEdge[0] = controlPoints[0][3];
+        implicitEdge[1] = controlPoints[0][2];
+        implicitEdge[2] = controlPoints[0][1];
+        implicitEdge[3] = controlPoints[0][0];
+        return implicitEdge;
     }
     
     private CoordinateColorPair[][] getPatchCoordinatesColor(CubicBezierCurve C1, CubicBezierCurve C2, CubicBezierCurve D1, CubicBezierCurve D2)
@@ -208,10 +177,10 @@ class CoonsPatch
                 double scy = (1 - v) * curveC1[j].getY() + v * curveC2[j].getY();
                 double sdx = (1 - u) * curveD1[i].getX() + u * curveD2[i].getX();
                 double sdy = (1 - u) * curveD1[i].getY() + u * curveD2[i].getY();
-                double sbx = (1 - v) * ((1 - u) * edgeC1[0].getX() + u * edgeC1[3].getX()) 
-                        + v * ((1 - u) * edgeC2[0].getX() + u * edgeC2[3].getX());
-                double sby = (1 - v) * ((1 - u) * edgeC1[0].getY() + u * edgeC1[3].getY()) 
-                        + v * ((1 - u) * edgeC2[0].getY() + u * edgeC2[3].getY());
+                double sbx = (1 - v) * ((1 - u) * controlPoints[0][0].getX() + u * controlPoints[0][3].getX()) 
+                        + v * ((1 - u) * controlPoints[1][0].getX() + u * controlPoints[1][3].getX());
+                double sby = (1 - v) * ((1 - u) * controlPoints[0][0].getY() + u * controlPoints[0][3].getY()) 
+                        + v * ((1 - u) * controlPoints[1][0].getY() + u * controlPoints[1][3].getY());
                 
                 double sx = scx + sdx - sbx;
                 double sy = scy + sdy - sby;
@@ -228,18 +197,5 @@ class CoonsPatch
             }
         }
         return patchCC;
-    }
-    
-    private class CoordinateColorPair
-    {
-        final Point2D coordinate;
-        final float[] color;
-        
-        CoordinateColorPair(Point2D p, float[] c)
-        {
-            coordinate = p;
-            color = c.clone();
-        }
-    }
-    
+    }  
 }
