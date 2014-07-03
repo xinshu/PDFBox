@@ -29,7 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.util.Matrix;
 
 /**
- *
+ * AWT Paint for coons patch meshes (Type 6) shading.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class Type6ShadingPaint implements Paint

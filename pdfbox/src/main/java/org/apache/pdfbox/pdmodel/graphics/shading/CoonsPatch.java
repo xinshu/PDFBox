@@ -21,27 +21,25 @@ import java.util.ArrayList;
 
 /**
  * This class is used to describe a patch for type 6 shading.
- * This was done as part of GSoC2014.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class CoonsPatch extends Patch
 {   
     /**
-     * Constructor for using 4 edges and color of 4 corners
-     * @param C1 edge C1 of the coons patch, contains 4 control points [p1, p12, p11, p10] not [p10, p11, p12, p1]
-     * @param C2 edge C2 of the coons patch, contains 4 control points [p4, p5, p6, p7]
-     * @param D1 edge D1 of the coons patch, contains 4 control points [p1, p2, p3, p4]
-     * @param D2 edge D2 of the coons patch, contains 4 control points [p10, p9, p8, p7] not [p7, p8, p9, p10]
-     * @param color 4 corner colors, value is as [c1, c2, c3, c4]
+     * Constructor of a patch for type 6 shading.
+     * @param points 12 control points
+     * @param color  4 corner colors
      */
     protected CoonsPatch(Point2D[] points, float[][] color)
     {
         super(points, color);
         controlPoints = reshapeControlPoints(points);
-        level = setLevel();
+        level = calLevel();
         listOfCoonsTriangle = getCoonsTriangle();
     }
     
+    // adjust the 12 control points to 4 groups, each group defines one edge of a patch
     private Point2D[][] reshapeControlPoints(Point2D[] points)
     {
         Point2D[][] fourRows = new Point2D[4][4];
@@ -55,24 +53,25 @@ class CoonsPatch extends Patch
                                 }; // c2
         fourRows[3] = new Point2D[]
                                 {
-                                    //points[6], points[7], points[8], points[9]
                                     points[9], points[8], points[7], points[6]
                                 }; // d2
         fourRows[0] = new Point2D[]
                                 {
-                                    //points[9], points[10], points[11], points[0]
                                     points[0], points[11], points[10], points[9]
                                 }; // c1
         return fourRows;
     }
     
-    private int[] setLevel()
+    // calculate the dividing level from control points
+    private int[] calLevel()
     {
         int[] l = {4, 4};
+        // if two opposite edges are both lines, there is a possibility to reduce the dividing level
         if (isEdgeALine(controlPoints[0]) & isEdgeALine(controlPoints[1]))
         {
             double lc1 = getLen(controlPoints[0][0], controlPoints[0][3]), 
                                 lc2 = getLen(controlPoints[1][0], controlPoints[1][3]);
+            // determine the dividing level by the lengths of edges
             if (lc1 > 800 || lc2 > 800)
             {
             }
@@ -89,6 +88,8 @@ class CoonsPatch extends Patch
                 l[0] = 1;
             }
         }
+        
+        // the other two opposite edges
         if (isEdgeALine(controlPoints[2]) & isEdgeALine(controlPoints[3]))
         {
             double ld1 = getLen(controlPoints[2][0], controlPoints[2][3]), 
@@ -112,8 +113,10 @@ class CoonsPatch extends Patch
         return l;
     }
 
+    // get a list of CoonsTriangles which compose this coons patch
     private ArrayList<CoonsTriangle> getCoonsTriangle()
     {
+        // 4 edges are 4 cubic Bezier curves
         CubicBezierCurve eC1 = new CubicBezierCurve(controlPoints[0], level[0]);
         CubicBezierCurve eC2 = new CubicBezierCurve(controlPoints[1], level[0]);
         CubicBezierCurve eD1 = new CubicBezierCurve(controlPoints[2], level[1]);
@@ -150,6 +153,9 @@ class CoonsPatch extends Patch
         return implicitEdge;
     }
     
+    // dividing a patch into a grid, return a matrix of the coordinate and color at the crossing points of the grid, 
+    // the rule to calculate the coordinate is defined in page 195 of PDF32000_2008.pdf, the rule to calculate the 
+    // cooresponding color is bilinear interpolation
     private CoordinateColorPair[][] getPatchCoordinatesColor(CubicBezierCurve C1, CubicBezierCurve C2, CubicBezierCurve D1, CubicBezierCurve D2)
     {
         Point2D[] curveC1 = C1.getCubicBezierCurve();
@@ -168,6 +174,7 @@ class CoonsPatch extends Patch
         double v = - stepV;
         for(int i = 0; i < szV; i++)
         {
+            // v and u are the assistant parameters
             v += stepV;
             double u = - stepU;
             for(int j = 0; j < szU; j++)
@@ -184,6 +191,7 @@ class CoonsPatch extends Patch
                 
                 double sx = scx + sdx - sbx;
                 double sy = scy + sdy - sby;
+                // the above code in this for loop defines the patch surface (coordinates)
                 
                 Point2D tmpC = new Point2D.Double(sx, sy);
                 
@@ -191,7 +199,7 @@ class CoonsPatch extends Patch
                 for(int ci = 0; ci < numberOfColorComponents; ci++)
                 {
                     paramSC[ci] = (float) ((1 - v) * ((1 - u) * cornerColor[0][ci] + u * cornerColor[3][ci]) 
-                            + v * ((1 - u) * cornerColor[1][ci] + u * cornerColor[2][ci]));
+                            + v * ((1 - u) * cornerColor[1][ci] + u * cornerColor[2][ci])); // bilinear interpolation
                 }
                 patchCC[i][j] = new CoordinateColorPair(tmpC, paramSC);
             }

@@ -20,25 +20,38 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 /**
- *
+ * Patch is extended by CoonsPatch and TensorPatch.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 abstract class Patch
 {
     protected Point2D[][] controlPoints;
-    protected float[][] cornerColor; 
-    protected int[] level; // {levelU, levelV}
+    protected float[][] cornerColor;
+    
+    /*
+     level = {levelU, levelV}, levelU defines the patch's u direction edges should be 
+     divided into 2^levelU parts, level V defines the patch's v direction edges should
+     be divided into 2^levelV parts
+     */
+    protected int[] level;
     protected ArrayList<CoonsTriangle> listOfCoonsTriangle;
     
+    /**
+     * Constructor of Patch.
+     * @param ctl control points, size is 12 (for type 6 shading) or 16 (for type 7 shading)
+     * @param color 4 corner's colors
+     */
     public Patch(Point2D[] ctl, float[][] color)
     {
         cornerColor = color.clone();
     }
     
-    protected abstract Point2D[] getFlag1Edge();
-    protected abstract Point2D[] getFlag2Edge();
-    protected abstract Point2D[] getFlag3Edge();
+    protected abstract Point2D[] getFlag1Edge(); // return the implicit edge for flag = 1
+    protected abstract Point2D[] getFlag2Edge(); // return the implicit edge for flag = 2
+    protected abstract Point2D[] getFlag3Edge(); // return the implicit edge for flag = 3
     
+    // return the implicit color for flag = 1
     protected float[][] getFlag1Color()
     {
         int numberOfColorComponents = cornerColor[0].length;
@@ -51,6 +64,7 @@ abstract class Patch
         return implicitCornerColor;
     }
     
+    // return the implicit color for flag = 2
     protected float[][] getFlag2Color()
     {
         int numberOfColorComponents = cornerColor[0].length;
@@ -63,6 +77,7 @@ abstract class Patch
         return implicitCornerColor;
     }
     
+    // return the implicit color for flag = 3
     protected float[][] getFlag3Color()
     {
         int numberOfColorComponents = cornerColor[0].length;
@@ -75,6 +90,7 @@ abstract class Patch
         return implicitCornerColor;
     }
     
+    // calculate the distance from point ps to point pe
     protected double getLen(Point2D ps, Point2D pe)
     {
         double x = pe.getX() - ps.getX();
@@ -82,6 +98,11 @@ abstract class Patch
         return Math.sqrt(x * x + y * y);
     }
     
+    /**
+     * whether the for control points are on a line.
+     * @param ctl an edge's control points, the size of ctl is 4
+     * @return whether those 4 control points are on a line
+     */
     protected boolean isEdgeALine(Point2D[] ctl)
     {
         double ctl1 = Math.abs(edgeEquationValue(ctl[1], ctl[0], ctl[3]));
@@ -91,11 +112,21 @@ abstract class Patch
         return (ctl1 <= x && ctl2 <= x) || (ctl1 <= y && ctl2 <= y);
     }
     
+    /*
+    a line from point p1 to point p2 defines an equation, adjust the form of the equation 
+    to let the rhs equals 0, then calculate the lhs value by plugging the coordinate of p 
+    in the lhs expression
+    */
     protected double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
     {
         return (p2.getY() - p1.getY()) * (p.getX() - p1.getX()) - (p2.getX() - p1.getX()) * (p.getY() - p1.getY());
     }
     
+    /**
+     * an assistant method to accomplish type 6 and type 7 shading.
+     * @param patchCC all the crossing point coordinates and color of a grid
+     * @return a CoonsTriangle list which can compose the grid patch
+     */
     protected ArrayList<CoonsTriangle> getCoonsTriangle(CoordinateColorPair[][] patchCC)
     {
         ArrayList<CoonsTriangle> list = new ArrayList<CoonsTriangle>();
@@ -113,7 +144,8 @@ abstract class Patch
                     ll = false;
                 }
                 else{
-                    Point2D[] llCorner = {p0, p1, p3}; // counter clock wise
+                    // p0, p1 and p3 are in counter clock wise order, p1 has priority over p0, p3 has priority over p1
+                    Point2D[] llCorner = {p0, p1, p3};
                     float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
                     CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
                     list.add(tmpll);
@@ -123,7 +155,8 @@ abstract class Patch
                 }
                 else
                 {
-                    Point2D[] urCorner = {p3, p1, p2}; // counter clock wise
+                    // p3, p1 and p2 are in counter clock wise order, p1 has priority over p3, p2 has priority over p1
+                    Point2D[] urCorner = {p3, p1, p2};
                     float[][] urColor = {patchCC[i][j-1].color, patchCC[i-1][j].color, patchCC[i][j].color};
                     CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
                     list.add(tmpur);
@@ -133,6 +166,7 @@ abstract class Patch
         return list;
     }
     
+    // whether two points p0 and p1 are degenerated into one point within the coordinates' accuracy 0.001
     private boolean overlaps(Point2D p0, Point2D p1)
     {
         return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;

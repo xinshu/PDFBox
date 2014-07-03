@@ -28,7 +28,8 @@ import org.apache.pdfbox.pdmodel.common.PDRange;
 import org.apache.pdfbox.util.Matrix;
 
 /**
- *
+ * AWT PaintContext for coons patch meshes (type 6) shading.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class Type6ShadingContext extends PatchMeshesShadingContext
@@ -54,6 +55,7 @@ class Type6ShadingContext extends PatchMeshesShadingContext
         patchList = getCoonsPatchList(xform, ctm);
     }
     
+    // get the patch list which forms the type 6 shading image from data stream
     private ArrayList<Patch> getCoonsPatchList(AffineTransform xform,Matrix ctm) throws IOException
     {
         PDShadingType6 coonsShadingType = (PDShadingType6) patchMeshesShadingType;

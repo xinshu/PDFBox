@@ -28,7 +28,8 @@ import org.apache.pdfbox.pdmodel.common.PDRange;
 import org.apache.pdfbox.util.Matrix;
 
 /**
- *
+ * AWT PaintContext for tensor-product patch meshes (type 7) shading.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class Type7ShadingContext extends PatchMeshesShadingContext
@@ -54,6 +55,7 @@ class Type7ShadingContext extends PatchMeshesShadingContext
         patchList = getTensorPatchList(xform, ctm);
     }
     
+    // get the patch list which forms the type 7 shading image from data stream
     private ArrayList<Patch> getTensorPatchList(AffineTransform xform,Matrix ctm) throws IOException
     {
         PDShadingType7 tensorShadingType = (PDShadingType7) patchMeshesShadingType;

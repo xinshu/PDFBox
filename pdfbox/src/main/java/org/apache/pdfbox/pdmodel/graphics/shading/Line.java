@@ -20,7 +20,8 @@ import java.awt.Point;
 import java.util.HashSet;
 
 /**
- *
+ * This class describes a rasterized line.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class Line
@@ -30,8 +31,15 @@ class Line
     private final float[] color0;
     private final float[] color1;
     
-    protected final HashSet<Point> linePoints;
+    protected final HashSet<Point> linePoints; // all the points in this rasterized line
     
+    /**
+     * Constructor of class Line.
+     * @param p0 one end of a line
+     * @param p1 the other end of the line
+     * @param c0 color of point p0
+     * @param c1 color of point p1
+     */
     public Line(Point p0, Point p1, float[] c0, float[] c1)
     {
         point0 = p0;
@@ -47,12 +55,12 @@ class Line
     }
     
     /**
-     * Bresenham's line algorithm
+     * Bresenham's line algorithm, http://en.wikipedia.org/wiki/Bresenham's_line_algorithm
      * @param x0
      * @param y0
      * @param x1
      * @param y1
-     * @return 
+     * @return all the points on the rasterized line from (x0, y0) to (x1, y1)
      */
     private HashSet<Point> getLine(int x0, int y0, int x1, int y1) 
     {
@@ -84,7 +92,10 @@ class Line
         return points;
     }
     
-    // p should always be contained in linePoints
+    /*
+    Point p should always be contained in linePoints. 
+    get the color of a point on a rasterized line by linear interpolation
+    */
     protected float[] getColor(Point p)
     {
         int numberOfColorComponents = color0.length;

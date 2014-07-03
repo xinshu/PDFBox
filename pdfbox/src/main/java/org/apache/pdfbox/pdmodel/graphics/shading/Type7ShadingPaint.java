@@ -29,7 +29,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.util.Matrix;
 
 /**
- *
+ * AWT Paint for tensor-product patch meshes (Type 7) shading.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class Type7ShadingPaint implements Paint
@@ -73,5 +74,4 @@ class Type7ShadingPaint implements Paint
             return null;
         }
     }
-    
 }

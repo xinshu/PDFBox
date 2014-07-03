@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1403778326102
+Bnd-LastModified: 1404392377712
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache PDFBox library is an open source Java too

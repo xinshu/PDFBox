@@ -20,7 +20,7 @@ import java.awt.geom.Point2D;
 
 /**
  * This class is used to describe the edge of each patch for type 6 shading.
- * This was done as part of GSoC2014.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 
@@ -32,10 +32,11 @@ class CubicBezierCurve
     private final Point2D[] curve;
     
     /**
-     * Constructor for using 4 control points of a cubic Bezier curve
-     * @param ctrlPnts, [p0, p1, p2, p3]
+     * Constructor of CubicBezierCurve
+     * @param ctrlPnts, 4 control points [p0, p1, p2, p3]
+     * @param l, dividing level, if l = 0, one cubic Bezier curve is divided into 2^0 = 1 segments,
+     * if l = n, one cubic Bezier curve is divided into 2^n segments
      */
-    
     public CubicBezierCurve(Point2D[] ctrlPnts, int l)
     {
         controlPoints = ctrlPnts.clone();
@@ -48,6 +49,7 @@ class CubicBezierCurve
         return level;
     }
     
+    // get sampled points on the cubic Bezier curve defined by the 4 given control points
     private Point2D[] getPoints(int l)
     {
         if (l < 0)

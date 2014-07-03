@@ -42,7 +42,8 @@ import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
 
 /**
- *
+ * This class is extended in Type6ShadingContext and Type7ShadingContext.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 abstract class PatchMeshesShadingContext implements PaintContext
@@ -51,29 +52,26 @@ abstract class PatchMeshesShadingContext implements PaintContext
     
     protected ColorModel outputColorModel;
     protected PDColorSpace shadingColorSpace;
-
-    /** number of color components. */
-    protected final int numberOfColorComponents;
-    
-    /** background values.*/
-    protected float[] background;
-
+    protected final int numberOfColorComponents; // number of color components
+    protected float[] background; // background values.
     protected final boolean hasFunction;
     protected final PDShading patchMeshesShadingType;
     
-    // the following fields are not intialized
-    /** patch list. */
-    protected ArrayList<Patch> patchList;
-
-    /** bits per coordinate. */
-    protected int bitsPerCoordinate;
-
-    /** bits per color component. */
-    protected int bitsPerColorComponent;
-
-    /** bits per flag. */
-    protected int bitsPerFlag;
+    // the following fields are not intialized in this abstract class
+    protected ArrayList<Patch> patchList; // patch list
+    protected int bitsPerCoordinate; // bits per coordinate
+    protected int bitsPerColorComponent; // bits per color component
+    protected int bitsPerFlag; // bits per flag
     
+    /**
+     * Constructor creates an instance to be used for fill operations.
+     * @param shading the shading type to be used
+     * @param colorModel the color model to be used
+     * @param xform transformation for user to device space
+     * @param ctm current transformation matrix
+     * @param pageHeight height of the current page
+     * @throws IOException if something went wrong
+     */
     protected PatchMeshesShadingContext(PDShading shading, ColorModel colorModel, AffineTransform xform,
                                 Matrix ctm, int pageHeight) throws IOException
     {
@@ -96,6 +94,7 @@ abstract class PatchMeshesShadingContext implements PaintContext
         }   
     }
     
+    // transform a point from source space to device space
     private void transformPoint(Point2D p, Matrix ctm, AffineTransform xform)
     {
         if (ctm != null)
@@ -105,17 +104,14 @@ abstract class PatchMeshesShadingContext implements PaintContext
         xform.transform(p, p);
     }
     
+    // create a patch list from a data stream, the returned list contains all the patches contained in the data stream
     protected ArrayList<Patch> getPatchList(AffineTransform xform,Matrix ctm, COSDictionary cosDictionary, 
                                 PDRange rangeX, PDRange rangeY, PDRange[] colRange, int numP) throws IOException
     {
         ArrayList<Patch> list = new ArrayList<Patch>();
         long maxSrcCoord = (long) Math.pow(2, bitsPerCoordinate) - 1;
         long maxSrcColor = (long) Math.pow(2, bitsPerColorComponent) - 1;
-        
-        
         COSStream cosStream = (COSStream) cosDictionary;
-        
-        //COSArray decode = (COSArray) cosDictionary.getDictionaryObject(COSName.DECODE);
         
         ImageInputStream mciis = new MemoryCacheImageInputStream(cosStream.getUnfilteredStream());
         
@@ -130,6 +126,7 @@ abstract class PatchMeshesShadingContext implements PaintContext
         }
         catch (EOFException ex)
         {
+            LOG.error(ex);
         }
         
         while (true)
@@ -138,12 +135,12 @@ abstract class PatchMeshesShadingContext implements PaintContext
             {
                 boolean isFree = (flag == 0);
                 Patch current = readPatch(mciis, isFree, implicitEdge, implicitCornerColor,
-                        maxSrcCoord, maxSrcColor, rangeX, rangeY, colRange, ctm, xform, numP);
+                                maxSrcCoord, maxSrcColor, rangeX, rangeY, colRange, ctm, xform, numP);
                 if (current == null)
                 {
                     break;
                 }
-                list.add((Patch)current);
+                list.add((Patch) current);
                 flag = (byte) (mciis.readBits(bitsPerFlag) & 3);
                 switch (flag)
                 {
@@ -175,15 +172,14 @@ abstract class PatchMeshesShadingContext implements PaintContext
         return list;
     }
     
+    // read a single patch from a data stream, a patch means its coordinates and color parameters
     protected Patch readPatch(ImageInputStream input, boolean isFree, Point2D[] implicitEdge, 
                                 float[][] implicitCornerColor, long maxSrcCoord, long maxSrcColor, 
                                 PDRange rangeX, PDRange rangeY, PDRange[] colRange, 
                                 Matrix ctm, AffineTransform xform, int numP) throws IOException
     {
         float[][] color = new float[4][numberOfColorComponents];
-        
         Point2D[] points = new Point2D[numP];
-        
         int pStart = 4, cStart = 2;
         if (isFree)
         {
@@ -233,8 +229,14 @@ abstract class PatchMeshesShadingContext implements PaintContext
         return generatePatch(points, color);
     }
     
+    /*
+    create a patch using control points and 4 corner color values, in Type6ShadingContext, 
+    a CoonsPatch is returned; in Type6ShadingContext, a TensorPatch is returned
+    */
     abstract Patch generatePatch(Point2D[] points, float[][] color);
     
+    
+    // get a point coordinate on a line by linear interpolation
     private double interpolate(double x, long maxValue, float rangeMin, float rangeMax)
     {
         return rangeMin + (x / maxValue) * (rangeMax - rangeMin); 

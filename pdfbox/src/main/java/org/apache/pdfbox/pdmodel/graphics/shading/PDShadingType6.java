@@ -48,9 +48,6 @@ public class PDShadingType6 extends PDShadingType4
     @Override
     public Paint toPaint(Matrix matrix, int pageHeight)
     {
-        // TODO ...
-        // LOG.debug("Type 6 Shading not implemented");
-        // return new Color(0, 0, 0, 0); // transparent
         return new Type6ShadingPaint(this, matrix, pageHeight);
     }
 }

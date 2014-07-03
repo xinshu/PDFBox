@@ -19,10 +19,11 @@ package org.apache.pdfbox.pdmodel.graphics.shading;
 import java.awt.geom.Point2D;
 
 /**
- *
+ * This class is used to store a point's coordinate and its corresponding color.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
-public class CoordinateColorPair
+class CoordinateColorPair
 {
     final Point2D coordinate;
     final float[] color;

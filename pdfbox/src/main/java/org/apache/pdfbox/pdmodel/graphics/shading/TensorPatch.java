@@ -20,19 +20,29 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 /**
- *
+ * This class is used to describe a patch for type 7 shading.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class TensorPatch extends Patch
 {  
-    public TensorPatch(Point2D[] tcp, float[][] color)
+    /**
+     * Constructor of a patch for type 7 shading.
+     * @param points 16 control points
+     * @param color  4 corner colors
+     */
+    protected TensorPatch(Point2D[] tcp, float[][] color)
     {
         super(tcp, color);
         controlPoints = reshapeControlPoints(tcp);
-        level = setLevel();
+        level = calLevel();
         listOfCoonsTriangle = getCoonsTriangle();
     }
     
+    /*
+    order the 16 1d points to a square matrix which is as the one described 
+    in p.199 of PDF3200_2008.pdf rotated 90 degrees clockwise
+    */
     private Point2D[][] reshapeControlPoints(Point2D[] tcp)
     {
         Point2D[][] square = new Point2D[4][4];
@@ -52,7 +62,8 @@ class TensorPatch extends Patch
         return square;
     }
     
-    private int[] setLevel()
+    // calculate the dividing level from the control points
+    private int[] calLevel()
     {
         int[] l = {4, 4};
         
@@ -63,14 +74,20 @@ class TensorPatch extends Patch
             ctlC1[j] = controlPoints[j][0];
             ctlC2[j] = controlPoints[j][3];
         }
+        // if two opposite edges are both lines, there is a possibility to reduce the dividing level
         if (isEdgeALine(ctlC1) & isEdgeALine(ctlC2))
         {
+            /*
+            if any of the 4 inner control points is out of the patch formed by the 4 edges, keep the high dividing level, 
+            otherwise, determine the dividing level by the lengths of edges
+            */
             if (isOnSameSideCC(controlPoints[1][1]) | isOnSameSideCC(controlPoints[1][2]) |
                                 isOnSameSideCC(controlPoints[2][1]) | isOnSameSideCC(controlPoints[2][2]))
             {
             }
             else
             {
+                // length's unit is one pixel in device space
                 double lc1 = getLen(ctlC1[0], ctlC1[3]), lc2 = getLen(ctlC2[0], ctlC2[3]);
                 if (lc1 > 800 || lc2 > 800)
                 {
@@ -90,6 +107,7 @@ class TensorPatch extends Patch
             }
         }
         
+        // the other two opposite edges
         if (isEdgeALine(controlPoints[0]) & isEdgeALine(controlPoints[3]))
         {
             if (isOnSameSideDD(controlPoints[1][1]) | isOnSameSideDD(controlPoints[1][2]) |
@@ -120,6 +138,7 @@ class TensorPatch extends Patch
         return l;
     }
     
+    // whether a point is on the same side of edge C1 and edge C2
     private boolean isOnSameSideCC(Point2D p)
     {
         double cc = edgeEquationValue(p, controlPoints[0][0], controlPoints[3][0]) * 
@@ -127,6 +146,7 @@ class TensorPatch extends Patch
         return cc > 0;
     }
     
+    // whether a point is on the same side of edge D1 and edge D2
     private boolean isOnSameSideDD(Point2D p)
     {
         double dd = edgeEquationValue(p, controlPoints[0][0], controlPoints[0][3]) * 
@@ -134,6 +154,7 @@ class TensorPatch extends Patch
         return dd > 0;
     }
     
+    // get a list of CoonsTriangles which compose this tensor patch
     private ArrayList<CoonsTriangle> getCoonsTriangle()
     {
         CoordinateColorPair[][] patchCC = getPatchCoordinatesColor();
@@ -173,6 +194,12 @@ class TensorPatch extends Patch
         return implicitEdge;
     }
     
+    /*
+    dividing a patch into a grid according to level, then calculate the coordinate and color of 
+    each crossing point in the grid, the rule to calculate the coordinate is tensor-product which 
+    is defined in page 119 of PDF32000_2008.pdf, the method to calculate the cooresponding color is 
+    bilinear interpolation
+    */
     private CoordinateColorPair[][] getPatchCoordinatesColor()
     {
         int numberOfColorComponents = cornerColor[0].length;
@@ -187,12 +214,14 @@ class TensorPatch extends Patch
         double v = -stepV;
         for (int k = 0; k < szV; k++)
         {
+            // v and u are the assistant parameters
             v += stepV;
             double u = - stepU;
             for (int l = 0; l < szU; l++)
             {
                 double tmpx = 0.0;
                 double tmpy = 0.0;
+                // these two "for" loops are for the equation to define the patch surface (coordinates)
                 for (int i = 0; i < 4; i++)
                 {
                     for (int j = 0; j < 4; j++)
@@ -208,7 +237,7 @@ class TensorPatch extends Patch
                 for(int ci = 0; ci < numberOfColorComponents; ci++)
                 {
                     paramSC[ci] = (float) ((1 - v) * ((1 - u) * cornerColor[0][ci] + u * cornerColor[3][ci]) 
-                            + v * ((1 - u) * cornerColor[1][ci] + u * cornerColor[2][ci]));
+                            + v * ((1 - u) * cornerColor[1][ci] + u * cornerColor[2][ci])); // bilinear interpolation
                 }
                 patchCC[k][l] = new CoordinateColorPair(tmpC, paramSC);
             }
@@ -216,6 +245,7 @@ class TensorPatch extends Patch
         return patchCC;
     }
     
+    // Bernstein polynomials which are defined in page 119 of PDF32000_2008.pdf
     private double[][] getBernsteinPolynomials(int lvl)
     {
         int sz = (1 << lvl) + 1;

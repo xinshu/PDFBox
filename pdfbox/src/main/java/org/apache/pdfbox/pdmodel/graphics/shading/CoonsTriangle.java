@@ -21,31 +21,45 @@ import java.awt.geom.Point2D;
 import java.util.HashSet;
 
 /**
- *
+ * This is an assistant class for accomplishing type 6 and 7 shading.
+ * It describes a triangle actually, which is used to compose a patch. It contains 
+ * the degenerated cases, a triangle degenerates to a line or to a point.
+ * This was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
 class CoonsTriangle
 {
-    private final Point2D[] corner;
+    private final Point2D[] corner; // vertexes coordinates of a triangle
     private final float[][] color;
-    private final double area;
+    private final double area; // area of the triangle
     
-    private final int degeneracy;
+    /*
+    degree = 3 describes a normal triangle, degree = 2 when a triangle degenerates to a line,
+    degree = 1 when a triangle degenerates to a point
+    */
+    private final int degree;
+    
+    // describes a rasterized line when a trianlge degerates to a line, otherwise this parameter is null
     private final Line line;
     
-    // edge equation value of 3 corners
+    // corner's edge (the opposite edge of a corner) equation value
     private final double v0;
     private final double v1;
     private final double v2;
     
+    /**
+     * Constructor of CoonsTriangle
+     * @param p an array of the 3 vertexes of a triangle
+     * @param c an array of color corresponding the vertex array p
+     */
     public CoonsTriangle(Point2D[] p, float[][] c)
     {
         corner = p.clone();
         color = c.clone();
         area = getArea(p[0], p[1], p[2]);
-        degeneracy = getDeg(p);
+        degree = getDeg(p);
         
-        if (degeneracy == 2)
+        if (degree == 2)
         {
             if (overlaps(corner[1], corner[2]) && !overlaps(corner[0], corner[2]))
             {
@@ -70,75 +84,106 @@ class CoonsTriangle
         v2 = edgeEquationValue(p[2], p[0], p[1]);
     }
     
+    /**
+     * get the degree value of a triangle
+     * @param p 3 vertexes coordinates
+     * @return number of unique points in the 3 vertexes of a triangle, 3, 2 or 1
+     */
     private int getDeg(Point2D[] p)
     {
         HashSet<Point> set = new HashSet<Point>();
         for (Point2D itp : p)
         {
-            //Point np = new Point((int)Math.round(itp.getX()), (int)Math.round(itp.getY()));
             Point np = new Point((int)Math.round(itp.getX() * 1000), (int)Math.round(itp.getY() * 1000));
             set.add(np);
         }
         return set.size();
     }
     
+    // whether a point is contained in this CoonsTriangle
     public boolean contains(Point2D p)
     {
-        if (degeneracy == 1)
+        if (degree == 1)
         {
             return overlaps(corner[0], p) | overlaps(corner[1], p) | overlaps(corner[2], p);
         }
-        else if (degeneracy == 2)
+        else if (degree == 2)
         {
             Point tp = new Point((int)Math.round(p.getX()), (int)Math.round(p.getY()));
             return line.linePoints.contains(tp);
         }
         
+        /*
+        the following code judges whether a point is contained in a normal trianlge, 
+        taking the on edge case as contained
+        */
         double pv0 = edgeEquationValue(p, corner[1], corner[2]);
+        /*
+        if corner[0] and point p are on different sides of line from corner[1] to corner[2], 
+        p is outside of the triangle
+        */
         if (pv0 * v0 < 0)
         {
             return false;
         }
         double pv1 = edgeEquationValue(p, corner[2], corner[0]);
+        /*
+        if vertex corner[1] and point p are on different sides of line from corner[2] to corner[0], 
+        p is outside of the triangle
+        */
         if (pv1 * v1 < 0)
         {
             return false;
         }
         double pv2 = edgeEquationValue(p, corner[0], corner[1]);
+        /*
+        only left one case:
+        if corner[1] and point p are on different sides of line from corner[2] to corner[0], 
+        p is outside of the triangle, otherwise p is contained in the triangle
+        */
         return pv2 * v2 >= 0; // !(pv2 * v2 < 0)
     }
     
+    /*
+    whether two points overlaps each other, as points' coordinates are double type, 
+    the coordinates' accuracy used here is 0.001
+    */
     private boolean overlaps(Point2D p0, Point2D p1)
     {
         return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
     }
     
+    /*
+    two points can define a line equation, adjust the form of the equation to let the rhs equals 0, 
+    calculate the lhs value by plugging the coordinate of p in the lhs expression
+    */
     private double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
     {
         return (p2.getY() - p1.getY()) * (p.getX() - p1.getX()) - (p2.getX() - p1.getX()) * (p.getY() - p1.getY());
     }
     
+    // calcuate the area of a triangle
     private double getArea(Point2D a, Point2D b, Point2D c)
     {
         return Math.abs((c.getX() - b.getX()) * (c.getY() - a.getY()) - (c.getX() - a.getX()) * (c.getY() - b.getY())) / 2.0;
     }
     
+    // calculate color of a point
     public float[] getColor(Point2D p)
     {
         int numberOfColorComponents = color[0].length;
         float[] pCol = new float[numberOfColorComponents];
         
-        if (degeneracy == 1)
+        if (degree == 1)
         {
-            //pCol = color[2];
             for (int i = 0; i < numberOfColorComponents; i++)
             {
-                pCol[i] = (color[0][i] + color[1][i] + color[2][i]) / 3.0f;
+                pCol[i] = (color[0][i] + color[1][i] + color[2][i]) / 3.0f; // average
             }
         }
-        else if (degeneracy == 2)
+        else if (degree == 2)
         {
-            Point tp = new Point((int)Math.round(p.getX()), (int)Math.round(p.getY()));
+            Point tp = new Point((int)Math.round(p.getX()), (int)Math.round(p.getY())); // linear interpolation
             return line.getColor(tp);
         }
         else
@@ -148,7 +193,7 @@ class CoonsTriangle
             float cw = (float) (getArea(p, corner[0], corner[1]) / area);
             for (int i = 0; i < numberOfColorComponents; i++)
             {
-                pCol[i] = color[0][i] * aw + color[1][i] * bw + color[2][i] * cw;
+                pCol[i] = color[0][i] * aw + color[1][i] * bw + color[2][i] * cw; // barycentric interpolation
             }
         }
         return pCol;
