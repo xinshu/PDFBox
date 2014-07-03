@@ -56,10 +56,10 @@ class Line
     
     /**
      * Bresenham's line algorithm, http://en.wikipedia.org/wiki/Bresenham's_line_algorithm
-     * @param x0
-     * @param y0
-     * @param x1
-     * @param y1
+     * @param x0 coordinate
+     * @param y0 coordinate
+     * @param x1 coordinate
+     * @param y1 coordinate
      * @return all the points on the rasterized line from (x0, y0) to (x1, y1)
      */
     private HashSet<Point> getLine(int x0, int y0, int x1, int y1) 
@@ -92,10 +92,11 @@ class Line
         return points;
     }
     
-    /*
-    Point p should always be contained in linePoints. 
-    get the color of a point on a rasterized line by linear interpolation
-    */
+    /**
+     * Calculate the color of a point on a rasterized line by linear interpolation.
+     * @param p target point, p should always be contained in linePoints
+     * @return color
+     */
     protected float[] getColor(Point p)
     {
         int numberOfColorComponents = color0.length;

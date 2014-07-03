@@ -104,7 +104,19 @@ abstract class PatchMeshesShadingContext implements PaintContext
         xform.transform(p, p);
     }
     
-    // create a patch list from a data stream, the returned list contains all the patches contained in the data stream
+    /**
+     * Create a patch list from a data stream, the returned list contains all the patches 
+     * contained in the data stream.
+     * @param xform transformation for user to device space
+     * @param ctm current transformation matrix
+     * @param cosDictionary dictionary object to give the image information
+     * @param rangeX range for coordinate x
+     * @param rangeY range for coordinate y
+     * @param colRange range for color
+     * @param numP number of control points, 12 for type 6 shading and 16 for type 7 shading
+     * @return the obtained patch list
+     * @throws IOException when something went wrong
+     */
     protected ArrayList<Patch> getPatchList(AffineTransform xform,Matrix ctm, COSDictionary cosDictionary, 
                                 PDRange rangeX, PDRange rangeY, PDRange[] colRange, int numP) throws IOException
     {
@@ -172,7 +184,24 @@ abstract class PatchMeshesShadingContext implements PaintContext
         return list;
     }
     
-    // read a single patch from a data stream, a patch means its coordinates and color parameters
+    /**
+     * Read a single patch from a data stream, a patch contains information of 
+     * its coordinates and color parameters.
+     * @param input the image source data stream
+     * @param isFree whether this is a free patch
+     * @param implicitEdge implicit edge when a patch is not free, otherwise it's not used
+     * @param implicitCornerColor implicit colors when a patch is not free, otherwise it's not used
+     * @param maxSrcCoord the maximum coordinate value calculated from source data
+     * @param maxSrcColor the maximum color value calculated from source data
+     * @param rangeX range for coordinate x
+     * @param rangeY range for coordinate y
+     * @param colRange range for color
+     * @param ctm current transformation matrix
+     * @param xform transformation for user to device space
+     * @param numP number of control points, 12 for type 6 shading and 16 for type 7 shading
+     * @return a single patch
+     * @throws IOException when something went wrong
+     */
     protected Patch readPatch(ImageInputStream input, boolean isFree, Point2D[] implicitEdge, 
                                 float[][] implicitCornerColor, long maxSrcCoord, long maxSrcColor, 
                                 PDRange rangeX, PDRange rangeY, PDRange[] colRange, 
@@ -228,11 +257,14 @@ abstract class PatchMeshesShadingContext implements PaintContext
         }
         return generatePatch(points, color);
     }
-    
-    /*
-    create a patch using control points and 4 corner color values, in Type6ShadingContext, 
-    a CoonsPatch is returned; in Type6ShadingContext, a TensorPatch is returned
-    */
+
+    /**
+     * Create a patch using control points and 4 corner color values, in Type6ShadingContext, 
+     * a CoonsPatch is returned; in Type6ShadingContext, a TensorPatch is returned.
+     * @param points 12 or 16 control points
+     * @param color 4 corner colors
+     * @return a patch instance
+     */
     abstract Patch generatePatch(Point2D[] points, float[][] color);
     
     

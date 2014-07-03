@@ -44,12 +44,16 @@ class CubicBezierCurve
         curve = getPoints(level);
     }
     
+    /**
+     * Get level parameter
+     * @return level 
+     */
     public int getLevel()
     {
         return level;
     }
     
-    // get sampled points on the cubic Bezier curve defined by the 4 given control points
+    // calculate sampled points on the cubic Bezier curve defined by the 4 given control points
     private Point2D[] getPoints(int l)
     {
         if (l < 0)
@@ -76,6 +80,10 @@ class CubicBezierCurve
         return res;
     }
     
+    /**
+     * Get sampled points of this cubic Bezier curve.
+     * @return sampled points
+     */
     public Point2D[] getCubicBezierCurve()
     {
         return curve;

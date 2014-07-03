@@ -28,6 +28,11 @@ class CoordinateColorPair
     final Point2D coordinate;
     final float[] color;
 
+    /**
+     * Constructor.
+     * @param p point
+     * @param c color
+     */
     CoordinateColorPair(Point2D p, float[] c)
     {
         coordinate = p;

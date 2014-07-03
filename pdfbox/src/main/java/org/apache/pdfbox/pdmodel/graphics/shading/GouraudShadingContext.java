@@ -38,7 +38,7 @@ import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
 
 /**
- * Shades Gouraud triangles for  Type4ShadingContext and Type5ShadingContext.
+ * Shades Gouraud triangles for Type4ShadingContext and Type5ShadingContext.
  * @author Andreas Lehmkühler
  * @author Tilman Hausherr
  */

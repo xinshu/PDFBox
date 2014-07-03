@@ -47,11 +47,28 @@ abstract class Patch
         cornerColor = color.clone();
     }
     
-    protected abstract Point2D[] getFlag1Edge(); // return the implicit edge for flag = 1
-    protected abstract Point2D[] getFlag2Edge(); // return the implicit edge for flag = 2
-    protected abstract Point2D[] getFlag3Edge(); // return the implicit edge for flag = 3
+    /**
+     * Get the implicit edge for flag = 1.
+     * @return implicit control points
+     */
+    protected abstract Point2D[] getFlag1Edge();
     
-    // return the implicit color for flag = 1
+    /**
+     * Get the implicit edge for flag = 2.
+     * @return implicit control points
+     */
+    protected abstract Point2D[] getFlag2Edge();
+    
+    /**
+     * Get the implicit edge for flag = 3.
+     * @return implicit control points
+     */
+    protected abstract Point2D[] getFlag3Edge();
+    
+    /**
+     * Get the implicit color for flag = 1.
+     * @return color
+     */
     protected float[][] getFlag1Color()
     {
         int numberOfColorComponents = cornerColor[0].length;
@@ -64,7 +81,10 @@ abstract class Patch
         return implicitCornerColor;
     }
     
-    // return the implicit color for flag = 2
+    /**
+     * Get implicit color for flag = 2.
+     * @return color
+     */
     protected float[][] getFlag2Color()
     {
         int numberOfColorComponents = cornerColor[0].length;
@@ -77,7 +97,10 @@ abstract class Patch
         return implicitCornerColor;
     }
     
-    // return the implicit color for flag = 3
+    /**
+     * Get implicit color for flag = 3.
+     * @return color
+     */
     protected float[][] getFlag3Color()
     {
         int numberOfColorComponents = cornerColor[0].length;
@@ -90,7 +113,12 @@ abstract class Patch
         return implicitCornerColor;
     }
     
-    // calculate the distance from point ps to point pe
+    /**
+     * Calculate the distance from point ps to point pe.
+     * @param ps one end of a line
+     * @param pe the other end of the line
+     * @return length of the line
+     */
     protected double getLen(Point2D ps, Point2D pe)
     {
         double x = pe.getX() - ps.getX();
@@ -99,9 +127,9 @@ abstract class Patch
     }
     
     /**
-     * whether the for control points are on a line.
+     * Whether the for control points are on a line.
      * @param ctl an edge's control points, the size of ctl is 4
-     * @return whether those 4 control points are on a line
+     * @return true when 4 control points are on a line, otherwise false
      */
     protected boolean isEdgeALine(Point2D[] ctl)
     {
@@ -112,18 +140,22 @@ abstract class Patch
         return (ctl1 <= x && ctl2 <= x) || (ctl1 <= y && ctl2 <= y);
     }
     
-    /*
-    a line from point p1 to point p2 defines an equation, adjust the form of the equation 
-    to let the rhs equals 0, then calculate the lhs value by plugging the coordinate of p 
-    in the lhs expression
-    */
+    /**
+     * A line from point p1 to point p2 defines an equation, adjust the form of the equation 
+     * to let the rhs equals 0, then calculate the lhs value by plugging the coordinate of p 
+     * in the lhs expression.
+     * @param p target point
+     * @param p1 one end of a line
+     * @param p2 the other end of a line
+     * @return calculated value
+     */
     protected double edgeEquationValue(Point2D p, Point2D p1, Point2D p2)
     {
         return (p2.getY() - p1.getY()) * (p.getX() - p1.getX()) - (p2.getX() - p1.getX()) * (p.getY() - p1.getY());
     }
     
     /**
-     * an assistant method to accomplish type 6 and type 7 shading.
+     * An assistant method to accomplish type 6 and type 7 shading.
      * @param patchCC all the crossing point coordinates and color of a grid
      * @return a CoonsTriangle list which can compose the grid patch
      */

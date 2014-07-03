@@ -48,7 +48,7 @@ class CoonsTriangle
     private final double v2;
     
     /**
-     * Constructor of CoonsTriangle
+     * Constructor of CoonsTriangle.
      * @param p an array of the 3 vertexes of a triangle
      * @param c an array of color corresponding the vertex array p
      */
@@ -85,7 +85,7 @@ class CoonsTriangle
     }
     
     /**
-     * get the degree value of a triangle
+     * Get the degree value of a triangle.
      * @param p 3 vertexes coordinates
      * @return number of unique points in the 3 vertexes of a triangle, 3, 2 or 1
      */
@@ -100,7 +100,11 @@ class CoonsTriangle
         return set.size();
     }
     
-    // whether a point is contained in this CoonsTriangle
+    /**
+     * Whether a point is contained in this CoonsTriangle.
+     * @param p the target point
+     * @return false if p is outside of this triangle, otherwise true
+     */
     public boolean contains(Point2D p)
     {
         if (degree == 1)
@@ -168,7 +172,11 @@ class CoonsTriangle
         return Math.abs((c.getX() - b.getX()) * (c.getY() - a.getY()) - (c.getX() - a.getX()) * (c.getY() - b.getY())) / 2.0;
     }
     
-    // calculate color of a point
+    /**
+     * Calculate color of a point.
+     * @param p the target point
+     * @return an array denotes the point's color
+     */
     public float[] getColor(Point2D p)
     {
         int numberOfColorComponents = color[0].length;
