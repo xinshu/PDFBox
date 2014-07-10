@@ -94,7 +94,7 @@ class CoonsTriangle
         HashSet<Point> set = new HashSet<Point>();
         for (Point2D itp : p)
         {
-            Point np = new Point((int)Math.round(itp.getX() * 1000), (int)Math.round(itp.getY() * 1000));
+            Point np = new Point((int)Math.round(itp.getX() * 1e3), (int)Math.round(itp.getY() * 1e3));
             set.add(np);
         }
         return set.size();
@@ -182,7 +182,7 @@ class CoonsTriangle
     */
     private boolean overlaps(Point2D p0, Point2D p1)
     {
-        return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
+        return Math.abs(p0.getX() - p1.getX()) < 1e-3 && Math.abs(p0.getY() - p1.getY()) < 1e-3;
     }
     
     /*

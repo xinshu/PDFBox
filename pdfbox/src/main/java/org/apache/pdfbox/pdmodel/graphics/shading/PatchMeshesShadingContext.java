@@ -275,10 +275,14 @@ abstract class PatchMeshesShadingContext implements PaintContext
     // get a point coordinate on a line by linear interpolation
     private double interpolate(double x, long maxValue, float rangeMin, float rangeMax)
     {
-        return rangeMin + (x / maxValue) * (rangeMax - rangeMin); 
+        return rangeMin + (x / maxValue) * (rangeMax - rangeMin);
     }
     
-    protected HashMap<Point, ColorRGB> calPixelTable()
+    /**
+     * Calculate every point and its color and store them in a Hash table.
+     * @return a Hash table contains all the points' positions and colors of one image
+     */
+    protected HashMap<Point, ColorRGB> calcPixelTable()
     {
         HashMap<Point, ColorRGB> map = new HashMap<Point, ColorRGB>();
         for (Patch it : patchList)
@@ -317,6 +321,7 @@ abstract class PatchMeshesShadingContext implements PaintContext
         return map;
     }
     
+    // convert color to RGB color values
     private float[] convertToRGB(float[] values)
     {
         float[] nValues = null;
@@ -369,8 +374,7 @@ abstract class PatchMeshesShadingContext implements PaintContext
     public final Raster getRaster(int x, int y, int w, int h)
     {
         WritableRaster raster = getColorModel().createCompatibleWritableRaster(w, h);
-        int[] data = new int[w * h * 4];
-        
+        int[] data = new int[w * h * 4];       
         if (!patchList.isEmpty() || background != null)
         {
             for (int row = 0; row < h; row++)
@@ -394,52 +398,6 @@ abstract class PatchMeshesShadingContext implements PaintContext
                             continue;
                         }
                     }
-//                    Point2D p = new Point(x + col, y + row);
-//                    float[] values = null;
-//                    for (Patch it : patchList)
-//                    {
-//                        for (CoonsTriangle tri : it.listOfCoonsTriangle)
-//                        {
-//                            if (tri.contains(p))
-//                            {
-//                                values = tri.getColor(p);
-//                            }
-//                        }
-//                    }
-//                    
-//                    if (values == null)
-//                    {
-//                        if (background != null)
-//                        {
-//                            values = background;
-//                        }
-//                        else
-//                        {
-//                            continue;
-//                        }
-//                    }
-//                    
-//                    if (hasFunction)
-//                    {
-//                        try
-//                        {
-//                            values = patchMeshesShadingType.evalFunction(values);
-//                        }
-//                        catch (IOException exception)
-//                        {
-//                            LOG.error("error while processing a function", exception);
-//                        }
-//                    }
-//                    
-//                    try
-//                    {
-//                        values = shadingColorSpace.toRGB(values);
-//                    }
-//                    catch (IOException exception)
-//                    {
-//                        LOG.error("error processing color space", exception);
-//                    }
-
                     int index = (row * w + col) * 4;
                     data[index] = (int) (values[0] * 255);
                     data[index + 1] = (int) (values[1] * 255);
@@ -450,5 +408,5 @@ abstract class PatchMeshesShadingContext implements PaintContext
         }
         raster.setPixels(0, 0, w, h, data);
         return raster;
-    }   
+    }
 }

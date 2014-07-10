@@ -26,7 +26,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
-
+import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSArray;
@@ -36,6 +36,9 @@ import org.apache.pdfbox.util.Matrix;
 
 /**
  * AWT PaintContext for axial shading.
+ * @author someone else
+ * Improved the performance, this was done as part of GSoC2014, Tilman Hausherr is the mentor.
+ * @author Shaola Ren
  */
 class AxialShadingContext implements PaintContext
 {
@@ -48,11 +51,15 @@ class AxialShadingContext implements PaintContext
     private float[] coords;
     private float[] domain;
     private float[] background;
+    private float[] rgbBackground;
     private boolean[] extend;
     private double x1x0;
     private double y1y0;
     private float d1d0;
     private double denom;
+    
+    private final double axialLength;
+    private final HashMap<Integer, ColorRGB> colorTable;
 
     /**
      * Constructor creates an instance to be used for fill operations.
@@ -108,13 +115,69 @@ class AxialShadingContext implements PaintContext
         y1y0 = coords[3] - coords[1];
         d1d0 = domain[1] - domain[0];
         denom = Math.pow(x1x0, 2) + Math.pow(y1y0, 2);
+        axialLength = Math.sqrt(denom);
 
         // get background values if available
         COSArray bg = shading.getBackground();
         if (bg != null)
         {
             background = bg.toFloatArray();
+            rgbBackground = convertToRGB(background);
         }
+        colorTable = calcColorTable();
+    }
+    
+    /**
+     * Calculate the color on the axial and store them in a Hash table.
+     * @return Hash table contains relative position and the corresponding color on the axial
+     */
+    private HashMap<Integer, ColorRGB> calcColorTable()
+    {
+        HashMap<Integer, ColorRGB> map = new HashMap<Integer, ColorRGB>();
+        if (axialLength == 0 || d1d0 == 0)
+        {
+            try
+            {
+                float[] values = shading.evalFunction(domain[0]);
+                map.put(0, new ColorRGB(convertToRGB(values)));
+            }
+            catch (IOException exception)
+            {
+                LOG.error("error while processing a function", exception);
+            }
+        }
+        else
+        {
+            for (int i = 0; i <= axialLength; i++)
+            {
+                float t = domain[0] + d1d0 * i / (float)axialLength;
+                try
+                {
+                    float[] values = shading.evalFunction(t);
+                    map.put(i, new ColorRGB(convertToRGB(values)));
+                }
+                catch (IOException exception)
+                {
+                    LOG.error("error while processing a function", exception);
+                }
+            }
+        }
+        return map;
+    }
+    
+    // convert color to RGB color values
+    private float[] convertToRGB(float[] values)
+    {
+        float[] rgbValues = null;
+        try
+        {
+            rgbValues = shadingColorSpace.toRGB(values);
+        }
+        catch (IOException exception)
+        {
+            LOG.error("error processing color space", exception);
+        }
+        return rgbValues;
     }
 
     @Override
@@ -206,28 +269,12 @@ class AxialShadingContext implements PaintContext
                 if (useBackground)
                 {
                     // use the given backgound color values
-                    values = background;
+                    values = rgbBackground;
                 }
                 else
                 {
-                    try
-                    {
-                        float input = (float) (domain[0] + (d1d0 * inputValue));
-                        values = shading.evalFunction(input);
-                    }
-                    catch (IOException exception)
-                    {
-                        LOG.error("error while processing a function", exception);
-                    }
-                }
-                // convert color values from shading color space to RGB if necessary
-                try
-                {
-                    values = shadingColorSpace.toRGB(values);
-                }
-                catch (IOException exception)
-                {
-                    LOG.error("error processing color space", exception);
+                    int key = (int) (inputValue * axialLength);
+                    values = colorTable.get(key).color;
                 }
                 data[index] = (int) (values[0] * 255);
                 data[index + 1] = (int) (values[1] * 255);

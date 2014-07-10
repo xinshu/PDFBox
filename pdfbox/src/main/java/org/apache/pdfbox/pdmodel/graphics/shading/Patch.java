@@ -193,6 +193,14 @@ abstract class Patch
                     CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
                     list.add(tmpur);
                 }
+//                Point2D[] llCorner = {p0, p1, p3};
+//                float[][] llColor = {patchCC[i-1][j-1].color, patchCC[i-1][j].color, patchCC[i][j-1].color};
+//                CoonsTriangle tmpll = new CoonsTriangle(llCorner, llColor); // lower left triangle
+//                list.add(tmpll);
+//                Point2D[] urCorner = {p3, p1, p2};
+//                float[][] urColor = {patchCC[i][j-1].color, patchCC[i-1][j].color, patchCC[i][j].color};
+//                CoonsTriangle tmpur = new CoonsTriangle(urCorner, urColor); // upper right triangle
+//                list.add(tmpur);
             }
         }
         return list;
@@ -201,6 +209,6 @@ abstract class Patch
     // whether two points p0 and p1 are degenerated into one point within the coordinates' accuracy 0.001
     private boolean overlaps(Point2D p0, Point2D p1)
     {
-        return Math.abs(p0.getX() - p1.getX()) < 0.001 && Math.abs(p0.getY() - p1.getY()) < 0.001;
-    }  
+        return Math.abs(p0.getX() - p1.getX()) < 1e-3 && Math.abs(p0.getY() - p1.getY()) < 1e-3;
+    }
 }
