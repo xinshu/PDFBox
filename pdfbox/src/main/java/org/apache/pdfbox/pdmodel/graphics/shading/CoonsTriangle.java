@@ -94,7 +94,7 @@ class CoonsTriangle
         HashSet<Point> set = new HashSet<Point>();
         for (Point2D itp : p)
         {
-            Point np = new Point((int)Math.round(itp.getX() * 1e3), (int)Math.round(itp.getY() * 1e3));
+            Point np = new Point((int)Math.round(itp.getX() * 1000), (int)Math.round(itp.getY() * 1000));
             set.add(np);
         }
         return set.size();

@@ -26,7 +26,6 @@ import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
-import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSArray;
@@ -36,7 +35,7 @@ import org.apache.pdfbox.util.Matrix;
 
 /**
  * AWT PaintContext for axial shading.
- * @author someone else
+ * @author Andreas Lehmkühler
  * Improved the performance, this was done as part of GSoC2014, Tilman Hausherr is the mentor.
  * @author Shaola Ren
  */
@@ -51,7 +50,7 @@ class AxialShadingContext implements PaintContext
     private float[] coords;
     private float[] domain;
     private float[] background;
-    private float[] rgbBackground;
+    private int rgbBackground;
     private boolean[] extend;
     private double x1x0;
     private double y1y0;
@@ -59,7 +58,7 @@ class AxialShadingContext implements PaintContext
     private double denom;
     
     private final double axialLength;
-    private final HashMap<Integer, ColorRGB> colorTable;
+    private final int[] colorTable;
 
     /**
      * Constructor creates an instance to be used for fill operations.
@@ -128,18 +127,18 @@ class AxialShadingContext implements PaintContext
     }
     
     /**
-     * Calculate the color on the axial and store them in a Hash table.
-     * @return Hash table contains relative position and the corresponding color on the axial
+     * Calculate the color on the axial line and store them in an array.
+     * @return an array, index denotes the relative position, the corresponding value is the color on the axial line
      */
-    private HashMap<Integer, ColorRGB> calcColorTable()
+    private int[] calcColorTable()
     {
-        HashMap<Integer, ColorRGB> map = new HashMap<Integer, ColorRGB>();
+        int[] map = new int[(int) axialLength + 1];
         if (axialLength == 0 || d1d0 == 0)
         {
             try
             {
                 float[] values = shading.evalFunction(domain[0]);
-                map.put(0, new ColorRGB(convertToRGB(values)));
+                map[0] = convertToRGB(values);
             }
             catch (IOException exception)
             {
@@ -154,7 +153,7 @@ class AxialShadingContext implements PaintContext
                 try
                 {
                     float[] values = shading.evalFunction(t);
-                    map.put(i, new ColorRGB(convertToRGB(values)));
+                    map[i] = convertToRGB(values);
                 }
                 catch (IOException exception)
                 {
@@ -166,18 +165,22 @@ class AxialShadingContext implements PaintContext
     }
     
     // convert color to RGB color values
-    private float[] convertToRGB(float[] values)
+    private int convertToRGB(float[] values)
     {
-        float[] rgbValues = null;
+        float[] rgbValues;
+        int normRGBValues = 0;
         try
         {
             rgbValues = shadingColorSpace.toRGB(values);
+            normRGBValues = (int) (rgbValues[0] * 255);
+            normRGBValues |= (((int) (rgbValues[1] * 255)) << 8);
+            normRGBValues |= (((int) (rgbValues[2] * 255)) << 16);
         }
         catch (IOException exception)
         {
             LOG.error("error processing color space", exception);
         }
-        return rgbValues;
+        return normRGBValues;
     }
 
     @Override
@@ -264,21 +267,23 @@ class AxialShadingContext implements PaintContext
                         }
                     }
                 }
-                float[] values = null;
-                int index = (j * w + i) * 4;
+                int value;
                 if (useBackground)
                 {
                     // use the given backgound color values
-                    values = rgbBackground;
+                    value = rgbBackground;
                 }
                 else
                 {
                     int key = (int) (inputValue * axialLength);
-                    values = colorTable.get(key).color;
+                    value = colorTable[key];
                 }
-                data[index] = (int) (values[0] * 255);
-                data[index + 1] = (int) (values[1] * 255);
-                data[index + 2] = (int) (values[2] * 255);
+                int index = (j * w + i) * 4;
+                data[index] = value & 255;
+                value >>= 8;
+                data[index + 1] = value & 255;
+                value >>= 8;
+                data[index + 2] = value & 255;
                 data[index + 3] = 255;
             }
         }

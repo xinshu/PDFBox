@@ -17,13 +17,17 @@
 package org.apache.pdfbox.pdmodel.graphics.shading;
 
 /**
- *
- * @author Shaola
+ * An object of RGB color.
+ * @author Shaola Ren
  */
 class ColorRGB
 {
-    protected final float[] color;
-    ColorRGB(float[] c)
+    protected final int[] color;
+    /**
+     * Constructor.
+     * @param c RGB color array, size is 3
+     */
+    ColorRGB(int[] c)
     {
         color = c.clone();
     }

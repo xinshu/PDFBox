@@ -35,7 +35,7 @@ class TensorPatch extends Patch
     {
         super(tcp, color);
         controlPoints = reshapeControlPoints(tcp);
-        level = calLevel();
+        level = calcLevel();
         listOfCoonsTriangle = getCoonsTriangle();
     }
     
@@ -63,7 +63,7 @@ class TensorPatch extends Patch
     }
     
     // calculate the dividing level from the control points
-    private int[] calLevel()
+    private int[] calcLevel()
     {
         int[] l = {4, 4};
         
