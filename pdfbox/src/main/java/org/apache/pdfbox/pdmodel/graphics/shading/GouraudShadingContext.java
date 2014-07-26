@@ -30,9 +30,12 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.pdmodel.common.PDRange;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
@@ -53,7 +56,7 @@ abstract class GouraudShadingContext implements PaintContext
     protected int numberOfColorComponents;
 
     /** triangle list. */
-    protected ArrayList<GouraudTriangle> triangleList;
+    protected ArrayList<CoonsTriangle> triangleList;
 
     /** bits per coordinate. */
     protected int bitsPerCoordinate;
@@ -63,9 +66,12 @@ abstract class GouraudShadingContext implements PaintContext
 
     /** background values.*/
     protected float[] background;
+    protected int rgbBackground;
 
     private final boolean hasFunction;
-    private final PDShading gouraudShadingType;
+    protected final PDShading gouraudShadingType;
+    
+    protected HashMap<Point, Integer> pixelTable;
 
     /**
      * Constructor creates an instance to be used for fill operations.
@@ -80,7 +86,7 @@ abstract class GouraudShadingContext implements PaintContext
                                     Matrix ctm, int pageHeight) throws IOException
     {
         gouraudShadingType = shading;
-        triangleList = new ArrayList<GouraudTriangle>();
+        triangleList = new ArrayList<CoonsTriangle>();
         hasFunction = shading.getFunction() != null;
 
         shadingColorSpace = shading.getColorSpace();
@@ -94,6 +100,12 @@ abstract class GouraudShadingContext implements PaintContext
         ColorSpace outputCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
         outputColorModel = new ComponentColorModel(outputCS, true, false, Transparency.TRANSLUCENT,
                 DataBuffer.TYPE_BYTE);
+        COSArray bg = shading.getBackground();
+        if (bg != null)
+        {
+            background = bg.toFloatArray();
+            rgbBackground = convertToRGB(background);
+        }
     }
 
     /**
@@ -108,8 +120,9 @@ abstract class GouraudShadingContext implements PaintContext
      * @return a new vertex with the flag and the interpolated values
      * @throws IOException if something went wrong
      */
-    protected Vertex readVertex(ImageInputStream input, byte flag, long maxSrcCoord, long maxSrcColor,
-                                PDRange rangeX, PDRange rangeY, PDRange[] colRangeTab) throws IOException
+    protected Vertex readVertex(ImageInputStream input, long maxSrcCoord, long maxSrcColor,
+                                PDRange rangeX, PDRange rangeY, PDRange[] colRangeTab, Matrix ctm, 
+                                AffineTransform xform) throws IOException
     {
         float[] colorComponentTab = new float[numberOfColorComponents];
         long x = input.readBits(bitsPerCoordinate);
@@ -117,6 +130,9 @@ abstract class GouraudShadingContext implements PaintContext
         double dstX = interpolate(x, maxSrcCoord, rangeX.getMin(), rangeX.getMax());
         double dstY = interpolate(y, maxSrcCoord, rangeY.getMin(), rangeY.getMax());
         LOG.debug("coord: " + String.format("[%06X,%06X] -> [%f,%f]", x, y, dstX, dstY));
+        Point2D tmp = new Point2D.Double(dstX, dstY);
+        transformPoint(tmp, ctm, xform);
+        
         for (int n = 0; n < numberOfColorComponents; ++n)
         {
             int color = (int) input.readBits(bitsPerColorComponent);
@@ -124,34 +140,94 @@ abstract class GouraudShadingContext implements PaintContext
             LOG.debug("color[" + n + "]: " + color + "/" + String.format("%02x", color)
                     + "-> color[" + n + "]: " + colorComponentTab[n]);
         }
-        return new Vertex(flag, new Point2D.Double(dstX, dstY), colorComponentTab);
+        return new Vertex(tmp, colorComponentTab);
     }
 
-    /**
-     * Transforms vertices from shading to user space (if applicable) and from user to device space.
-     * @param vertexList list of vertices
-     * @param xform transformation for user to device space
-     * @param ctm current transformation matrix
-     */
-    protected void transformVertices(ArrayList<Vertex> vertexList, Matrix ctm, AffineTransform xform)
+    // transform a point from source space to device space
+    private void transformPoint(Point2D p, Matrix ctm, AffineTransform xform)
     {
-        for (Vertex v : vertexList)
+        if (ctm != null)
         {
-            LOG.debug(v);
-
-            // this segment "inspired" by RadialShadingContext
-            if (ctm != null)
-            {
-                // transform from shading to user space
-                ctm.createAffineTransform().transform(v.point, v.point);
-                // transform from user to device space
-                xform.transform(v.point, v.point);
-            }
-
-            LOG.debug(v);
+            ctm.createAffineTransform().transform(p, p);
         }
+        xform.transform(p, p);
     }
+    
+    protected HashMap<Point, Integer> calcPixelTable()
+    {
+        HashMap<Point, Integer> map = new HashMap<Point, Integer>();
+        for (CoonsTriangle tri : triangleList)
+        {
+            int degree = tri.getDeg();
+            if (degree == 2)
+            {
+                Line line = tri.getLine();
+                HashSet<Point> linePoints = line.linePoints;
+                for (Point p : linePoints)
+                {
+                    float[] values = line.getColor(p);
+                    map.put(p, convertToRGB(values));
+                }
+            }
+            else
+            {
+                int[] boundary = tri.getBoundary();
+                for (int x = boundary[0]; x <= boundary[1]; x++)
+                {
+                    for (int y = boundary[2]; y <= boundary[3]; y++)
+                    {
+                        Point p = new Point(x, y);
+                        if (tri.contains(p))
+                        {
+                            float[] values = tri.getColor(p);
+                            map.put(p, convertToRGB(values));
+                        }
+                    }
+                }
+            }
+        }
+        return map;
+    }
+    
+    // convert color to RGB color values
+    private int convertToRGB(float[] values)
+    {
+        float[] nValues = null;
+        float[] rgbValues = null;
+        int normRGBValues = 0;
+        if (hasFunction)
+        {
+            try
+            {
+                nValues = gouraudShadingType.evalFunction(values);
+            }
+            catch (IOException exception)
+            {
+                LOG.error("error while processing a function", exception);
+            }
+        }
 
+        try
+        {
+            if (nValues == null)
+            {
+                rgbValues = shadingColorSpace.toRGB(values);
+            }
+            else
+            {
+                rgbValues = shadingColorSpace.toRGB(nValues);
+            }
+            normRGBValues = (int) (rgbValues[0] * 255);
+            normRGBValues |= (((int) (rgbValues[1] * 255)) << 8);
+            normRGBValues |= (((int) (rgbValues[2] * 255)) << 16);
+        }
+        catch (IOException exception)
+        {
+            LOG.error("error processing color space", exception);
+        }
+        return normRGBValues;
+    }
+    
     @Override
     public void dispose()
     {
@@ -190,66 +266,29 @@ abstract class GouraudShadingContext implements PaintContext
             {
                 for (int col = 0; col < w; col++)
                 {
-                    Point2D p = new Point(x + col, y + row);
-                    GouraudTriangle triangle = null;
-                    for (GouraudTriangle tryTriangle : triangleList)
+                    Point p = new Point(x + col, y + row);
+                    int value;
+                    if (pixelTable.containsKey(p))
                     {
-                        if (tryTriangle.contains(p))
-                        {
-                            triangle = tryTriangle;
-                            break;
-                        }
-                    }
-                    float[] values;
-                    if (triangle != null)
-                    {
-                        double[] weights = triangle.getWeights(p);
-                        values = new float[numberOfColorComponents];
-                        for (int i = 0; i < numberOfColorComponents; ++i)
-                        {
-                            values[i] = (float) (triangle.colorA[i] * weights[0]
-                                    + triangle.colorB[i] * weights[1]
-                                    + triangle.colorC[i] * weights[2]);
-                        }
+                        value = pixelTable.get(p);
                     }
                     else
                     {
                         if (background != null)
                         {
-                            values = background;
+                            value = rgbBackground;
                         }
                         else
                         {
                             continue;
                         }
                     }
-
-                    if (hasFunction)
-                    {
-                        try
-                        {
-                            values = gouraudShadingType.evalFunction(values);
-                        }
-                        catch (IOException exception)
-                        {
-                            LOG.error("error while processing a function", exception);
-                        }
-                    }
-
-                    // convert from shading color space to to RGB
-                    try
-                    {
-                        values = shadingColorSpace.toRGB(values);
-                    }
-                    catch (IOException exception)
-                    {
-                        LOG.error("error processing color space", exception);
-                    }
-
                     int index = (row * w + col) * 4;
-                    data[index] = (int) (values[0] * 255);
-                    data[index + 1] = (int) (values[1] * 255);
-                    data[index + 2] = (int) (values[2] * 255);
+                    data[index] = value & 255;
+                    value >>= 8;
+                    data[index + 1] = value & 255;
+                    value >>= 8;
+                    data[index + 2] = value & 255;
                     data[index + 3] = 255;
                 }
             }
