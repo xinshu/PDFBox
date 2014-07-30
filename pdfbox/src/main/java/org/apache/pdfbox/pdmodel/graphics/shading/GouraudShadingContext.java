@@ -19,6 +19,7 @@ package org.apache.pdfbox.pdmodel.graphics.shading;
 
 import java.awt.PaintContext;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -51,6 +52,7 @@ abstract class GouraudShadingContext implements PaintContext
 
     private ColorModel outputColorModel;
     private PDColorSpace shadingColorSpace;
+    private Rectangle deviceBounds;
 
     /** number of color components. */
     protected int numberOfColorComponents;
@@ -83,9 +85,10 @@ abstract class GouraudShadingContext implements PaintContext
      * @throws IOException if something went wrong
      */
     protected GouraudShadingContext(PDShading shading, ColorModel colorModel, AffineTransform xform,
-                                    Matrix ctm, int pageHeight) throws IOException
+                                    Matrix ctm, int pageHeight, Rectangle dBounds) throws IOException
     {
         gouraudShadingType = shading;
+        deviceBounds = dBounds;
         triangleList = new ArrayList<CoonsTriangle>();
         hasFunction = shading.getFunction() != null;
 
@@ -136,7 +139,7 @@ abstract class GouraudShadingContext implements PaintContext
         for (int n = 0; n < numberOfColorComponents; ++n)
         {
             int color = (int) input.readBits(bitsPerColorComponent);
-            colorComponentTab[n] = interpolate(color, maxSrcColor, colRangeTab[n].getMin(), colRangeTab[n].getMax());
+            colorComponentTab[n] = (float) interpolate(color, maxSrcColor, colRangeTab[n].getMin(), colRangeTab[n].getMax());
             LOG.debug("color[" + n + "]: " + color + "/" + String.format("%02x", color)
                     + "-> color[" + n + "]: " + colorComponentTab[n]);
         }
@@ -171,7 +174,14 @@ abstract class GouraudShadingContext implements PaintContext
             }
             else
             {
+                //System.out.println("start");
                 int[] boundary = tri.getBoundary();
+                //System.out.println(tri.corner[0] + " " + tri.corner[1] + " " + tri.corner[2]);
+                //System.out.println(boundary[0] + "    " + boundary[1] + "    " + boundary[2] + "    " + boundary[3]);
+                boundary[0] = Math.max(boundary[0], deviceBounds.x);
+                boundary[1] = Math.min(boundary[1], deviceBounds.x + deviceBounds.width);
+                boundary[2] = Math.max(boundary[2], deviceBounds.y);
+                boundary[3] = Math.min(boundary[3], deviceBounds.y + deviceBounds.height);
                 for (int x = boundary[0]; x <= boundary[1]; x++)
                 {
                     for (int y = boundary[2]; y <= boundary[3]; y++)
@@ -186,6 +196,7 @@ abstract class GouraudShadingContext implements PaintContext
                 }
             }
         }
+        //System.out.println("done");
         return map;
     }
     
@@ -242,17 +253,23 @@ abstract class GouraudShadingContext implements PaintContext
         return outputColorModel;
     }
 
-    /**
-     * Calculate the interpolation, see p.345 pdf spec 1.7.
-     * @param src src value
-     * @param srcMax max src value (2^bits-1)
-     * @param dstMin min dst value
-     * @param dstMax max dst value
-     * @return interpolated value
-     */
-    private float interpolate(float src, long srcMax, float dstMin, float dstMax)
+//    /**
+//     * Calculate the interpolation, see p.345 pdf spec 1.7.
+//     * @param src src value
+//     * @param srcMax max src value (2^bits-1)
+//     * @param dstMin min dst value
+//     * @param dstMax max dst value
+//     * @return interpolated value
+//     */
+//    private float interpolate(float src, long srcMax, float dstMin, float dstMax)
+//    {
+//        return dstMin + (src * (dstMax - dstMin) / srcMax);
+//    }
+    
+    // get a point coordinate on a line by linear interpolation
+    private double interpolate(double x, long maxValue, float rangeMin, float rangeMax)
     {
-        return dstMin + (src * (dstMax - dstMin) / srcMax);
+        return rangeMin + (x / maxValue) * (rangeMax - rangeMin);
     }
 
     @Override

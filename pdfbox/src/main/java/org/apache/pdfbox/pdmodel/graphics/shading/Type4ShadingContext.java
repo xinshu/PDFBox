@@ -16,15 +16,13 @@
  */
 package org.apache.pdfbox.pdmodel.graphics.shading;
 
-import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.ColorModel;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import org.apache.commons.logging.Log;
@@ -52,9 +50,9 @@ class Type4ShadingContext extends GouraudShadingContext
      * @param pageHeight height of the current page
      */
     public Type4ShadingContext(PDShadingType4 shading, ColorModel cm, AffineTransform xform,
-                               Matrix ctm, int pageHeight) throws IOException
+                               Matrix ctm, int pageHeight, Rectangle dBounds) throws IOException
     {
-        super(shading, cm, xform, ctm, pageHeight);
+        super(shading, cm, xform, ctm, pageHeight, dBounds);
         LOG.debug("Type4ShadingContext");
 
         bitsPerColorComponent = shading.getBitsPerComponent();
@@ -72,7 +70,9 @@ class Type4ShadingContext extends GouraudShadingContext
         PDShadingType4 FreeTriangleShadingType = (PDShadingType4) gouraudShadingType;
         COSDictionary cosDictionary = FreeTriangleShadingType.getCOSDictionary();
         PDRange rangeX = FreeTriangleShadingType.getDecodeForParameter(0);
+        //System.out.println("rangeX: " + rangeX.getMin() + "    " + rangeX.getMax());
         PDRange rangeY = FreeTriangleShadingType.getDecodeForParameter(1);
+        //System.out.println("rangeY: " + rangeY.getMin() + "    " + rangeY.getMax());
         PDRange[] colRange = new PDRange[numberOfColorComponents];
         for (int i = 0; i < numberOfColorComponents; ++i)
         {
