@@ -275,7 +275,7 @@ class AxialShadingContext implements PaintContext
                 }
                 else
                 {
-                    int key = (int) (inputValue * axialLength);
+                    int key = (int) ((inputValue - domain[0]) * axialLength / d1d0);
                     value = colorTable[key];
                 }
                 int index = (j * w + i) * 4;

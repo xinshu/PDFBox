@@ -368,7 +368,7 @@ class RadialShadingContext implements PaintContext
                 }
                 else
                 {
-                    int key = (int) (inputValue * longestDistance);
+                    int key = (int) ((inputValue - domain[0]) * longestDistance / d1d0);
                     value = colorTable[key];
                 }
                 int index = (j * w + i) * 4;
