@@ -35,6 +35,7 @@ import org.apache.pdfbox.util.Matrix;
 /**
  * AWT PaintContext for Gouraud Triangle Mesh (Type 4) shading.
  * @author Tilman Hausherr
+ * @author Shaola Ren
  */
 class Type4ShadingContext extends GouraudShadingContext
 {

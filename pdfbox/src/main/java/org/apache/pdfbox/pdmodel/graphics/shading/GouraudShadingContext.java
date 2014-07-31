@@ -45,6 +45,7 @@ import org.apache.pdfbox.util.Matrix;
  * Shades Gouraud triangles for Type4ShadingContext and Type5ShadingContext.
  * @author Andreas Lehmkühler
  * @author Tilman Hausherr
+ * @author Shaola Ren
  */
 abstract class GouraudShadingContext implements PaintContext
 {

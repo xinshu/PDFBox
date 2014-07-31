@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1406690182814
+Bnd-LastModified: 1406825619746
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache JempBox library is an open source Java to

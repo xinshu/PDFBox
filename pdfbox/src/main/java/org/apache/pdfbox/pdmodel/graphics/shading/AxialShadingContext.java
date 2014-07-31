@@ -17,6 +17,7 @@
 package org.apache.pdfbox.pdmodel.graphics.shading;
 
 import java.awt.PaintContext;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -30,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSBoolean;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
 
@@ -56,6 +58,8 @@ class AxialShadingContext implements PaintContext
     private double y1y0;
     private float d1d0;
     private double denom;
+    private final PDRectangle BBox;
+    private float[] bBox = new float[4];
     
     private final double axialLength;
     private final int[] colorTable;
@@ -73,13 +77,33 @@ class AxialShadingContext implements PaintContext
     {
         this.shading = shading;
         coords = this.shading.getCoords().toFloatArray();
-
+        BBox = shading.getBBox();
+        if (BBox != null)
+        {
+            bBox[0] = BBox.getLowerLeftX();
+            bBox[1] = BBox.getLowerLeftY();
+            bBox[2] = BBox.getUpperRightX();
+            bBox[3] = BBox.getUpperRightY();
+            if (ctm != null)
+            {
+                // transform the coords using the given matrix
+                ctm.createAffineTransform().transform(bBox, 0, bBox, 0, 2);
+            }
+             xform.transform(bBox, 0, bBox, 0, 2);
+        }
+//        System.out.println("before");
+//        System.out.println(coords[0] + "  " + coords[1] + "  " + coords[2] + "  " + coords[3]);
+//        System.out.println(bBox[0] + "  " + bBox[1] + "  " + bBox[2] + "  " + bBox[3]);
+        
         if (ctm != null)
         {
             // transform the coords using the given matrix
             ctm.createAffineTransform().transform(coords, 0, coords, 0, 2);
         }
         xform.transform(coords, 0, coords, 0, 2);
+//        System.out.println("after");
+//        System.out.println(coords[0] + "  " + coords[1] + "  " + coords[2] + "  " + coords[3]);
+//        System.out.println(bBox[0] + "  " + bBox[1] + "  " + bBox[2] + "  " + bBox[3]);
         // get the shading colorSpace
         shadingColorSpace = this.shading.getColorSpace();
         // create the output colormodel using RGB+alpha as colorspace
@@ -206,11 +230,27 @@ class AxialShadingContext implements PaintContext
         int[] data = new int[w * h * 4];
         for (int j = 0; j < h; j++)
         {
+            double currentY = y + j;
+            if (BBox != null)
+            {
+                if (currentY < bBox[3] || currentY > bBox[1])
+                {
+                    continue;
+                }
+            }
             for (int i = 0; i < w; i++)
             {
+                double currentX = x + i;
+                if (BBox != null)
+                {
+                    if (currentX < bBox[0] || currentX > bBox[2])
+                    {
+                        continue;
+                    }
+                }
                 useBackground = false;
-                double inputValue = x1x0 * (x + i - coords[0]);
-                inputValue += y1y0 * (y + j - coords[1]);
+                double inputValue = x1x0 * (currentX - coords[0]);
+                inputValue += y1y0 * (currentY - coords[1]);
                 // TODO this happens if start == end, see PDFBOX-1442
                 if (denom == 0)
                 {
