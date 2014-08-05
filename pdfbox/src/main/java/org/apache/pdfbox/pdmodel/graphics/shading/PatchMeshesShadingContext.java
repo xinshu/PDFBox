@@ -18,6 +18,7 @@ package org.apache.pdfbox.pdmodel.graphics.shading;
 
 import java.awt.PaintContext;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -40,6 +41,7 @@ import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdmodel.common.PDRange;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
 
@@ -54,11 +56,14 @@ abstract class PatchMeshesShadingContext implements PaintContext
     
     protected ColorModel outputColorModel;
     protected PDColorSpace shadingColorSpace;
+    private final Rectangle deviceBounds;
     protected final int numberOfColorComponents; // number of color components
     protected float[] background; // background values.
     protected int rgbBackground;
     protected final boolean hasFunction;
     protected final PDShading patchMeshesShadingType;
+    private PDRectangle bboxRect;
+    private float[] bboxTab = new float[4];
     
     // the following fields are not intialized in this abstract class
     protected ArrayList<Patch> patchList; // patch list
@@ -77,9 +82,31 @@ abstract class PatchMeshesShadingContext implements PaintContext
      * @throws IOException if something went wrong
      */
     protected PatchMeshesShadingContext(PDShading shading, ColorModel colorModel, AffineTransform xform,
-                                Matrix ctm, int pageHeight) throws IOException
+                                Matrix ctm, int pageHeight, Rectangle dBounds) throws IOException
     {
         patchMeshesShadingType = shading;
+        deviceBounds = dBounds;
+        bboxRect = shading.getBBox();
+        if (bboxRect != null)
+        {
+            bboxTab[0] = bboxRect.getLowerLeftX();
+            bboxTab[1] = bboxRect.getLowerLeftY();
+            bboxTab[2] = bboxRect.getUpperRightX();
+            bboxTab[3] = bboxRect.getUpperRightY();
+            if (ctm != null)
+            {
+                // transform the coords using the given matrix
+                ctm.createAffineTransform().transform(bboxTab, 0, bboxTab, 0, 2);
+            }
+             xform.transform(bboxTab, 0, bboxTab, 0, 2);
+        }
+        reOrder(bboxTab, 0, 2);
+        reOrder(bboxTab, 1, 3);
+        if (bboxTab[0] >= bboxTab[2] || bboxTab[1] >= bboxTab[3])
+        {
+            bboxRect = null;
+        }
+        
         patchList = new ArrayList<Patch>();
         hasFunction = shading.getFunction() != null;
         shadingColorSpace = shading.getColorSpace();
@@ -96,6 +123,20 @@ abstract class PatchMeshesShadingContext implements PaintContext
         {
             background = bg.toFloatArray();
             rgbBackground = convertToRGB(background);
+        }
+    }
+    
+    // this method is used to arrange the array to denote the left upper corner and right lower corner of the BBox
+    private void reOrder(float[] array, int i, int j)
+    {
+        if (i < j && array[i] <= array[j])
+        {
+        }
+        else
+        {
+            float tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
         }
     }
     
@@ -303,6 +344,10 @@ abstract class PatchMeshesShadingContext implements PaintContext
                 else
                 {
                     int[] boundary = tri.getBoundary();
+                    boundary[0] = Math.max(boundary[0], deviceBounds.x);
+                    boundary[1] = Math.min(boundary[1], deviceBounds.x + deviceBounds.width);
+                    boundary[2] = Math.max(boundary[2], deviceBounds.y);
+                    boundary[3] = Math.min(boundary[3], deviceBounds.y + deviceBounds.height);
                     for (int x = boundary[0]; x <= boundary[1]; x++)
                     {
                         for (int y = boundary[2]; y <= boundary[3]; y++)
@@ -383,8 +428,24 @@ abstract class PatchMeshesShadingContext implements PaintContext
         {
             for (int row = 0; row < h; row++)
             {
+                int currentY = y + row;
+                if (bboxRect != null)
+                {
+                    if (currentY < bboxTab[1] || currentY > bboxTab[3])
+                    {
+                        continue;
+                    }
+                }
                 for (int col = 0; col < w; col++)
                 {
+                    int currentX = x + col;
+                    if (bboxRect != null)
+                    {
+                        if (currentX < bboxTab[0] || currentX > bboxTab[2])
+                        {
+                            continue;
+                        }
+                    }
                     Point p = new Point(x + col, y + row);
                     int value;
                     if (pixelTable.containsKey(p))

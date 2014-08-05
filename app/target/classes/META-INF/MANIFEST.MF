@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1406825653103
+Bnd-LastModified: 1407200960252
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache Software Foundation provides support for 

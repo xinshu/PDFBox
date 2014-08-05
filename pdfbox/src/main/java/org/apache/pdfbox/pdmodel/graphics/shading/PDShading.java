@@ -383,7 +383,18 @@ public abstract class PDShading implements COSObjectable
             for (int i=0; i<numberOfFunctions;i++)
             {
                 float[] newValue = functions[i].eval(input);
-                returnValues[i] = newValue[0];
+                if (newValue[0] < 0)
+                {
+                    returnValues[i] = 0;
+                }
+                else if (newValue[0] > 1)
+                {
+                    returnValues[i] = 1;
+                }
+                else
+                {
+                    returnValues[i] = newValue[0];
+                }
             }
         }
         return returnValues;

@@ -29,6 +29,7 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSArray;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
 
@@ -48,6 +49,8 @@ class Type1ShadingContext implements PaintContext
     private float[] domain;
     private Matrix matrix;
     private float[] background;
+    private PDRectangle bboxRect;
+    private float[] bboxTab = new float[4];
 
     /**
      * Constructor creates an instance to be used for fill operations.
@@ -61,7 +64,27 @@ class Type1ShadingContext implements PaintContext
                                Matrix ctm, int pageHeight) throws IOException
     {
         this.shading = shading;
-
+        bboxRect = shading.getBBox();
+        if (bboxRect != null)
+        {
+            bboxTab[0] = bboxRect.getLowerLeftX();
+            bboxTab[1] = bboxRect.getLowerLeftY();
+            bboxTab[2] = bboxRect.getUpperRightX();
+            bboxTab[3] = bboxRect.getUpperRightY();
+            if (ctm != null)
+            {
+                // transform the coords using the given matrix
+                ctm.createAffineTransform().transform(bboxTab, 0, bboxTab, 0, 2);
+            }
+             xform.transform(bboxTab, 0, bboxTab, 0, 2);
+        }
+        reOrder(bboxTab, 0, 2);
+        reOrder(bboxTab, 1, 3);
+        if (bboxTab[0] >= bboxTab[2] || bboxTab[1] >= bboxTab[3])
+        {
+            bboxRect = null;
+        }
+        
         // color space
         shadingColorSpace = this.shading.getColorSpace();
         // create the output colormodel using RGB+alpha as colorspace
@@ -112,6 +135,20 @@ class Type1ShadingContext implements PaintContext
             background = bg.toFloatArray();
         }
     }
+    
+    // this method is used to arrange the array to denote the left upper corner and right lower corner of the BBox
+    private void reOrder(float[] array, int i, int j)
+    {
+        if (i < j && array[i] <= array[j])
+        {
+        }
+        else
+        {
+            float tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
+        }
+    }
 
     @Override
     public void dispose()
@@ -134,8 +171,24 @@ class Type1ShadingContext implements PaintContext
         int[] data = new int[w * h * 4];
         for (int j = 0; j < h; j++)
         {
+            int currentY = y + j;
+            if (bboxRect != null)
+            {
+                if (currentY < bboxTab[1] || currentY > bboxTab[3])
+                {
+                    continue;
+                }
+            }
             for (int i = 0; i < w; i++)
             {
+                int currentX = x + i;
+                if (bboxRect != null)
+                {
+                    if (currentX < bboxTab[0] || currentX > bboxTab[2])
+                    {
+                        continue;
+                    }
+                }
                 int index = (j * w + i) * 4;
                 boolean useBackground = false;
                 float[] values = new float[]

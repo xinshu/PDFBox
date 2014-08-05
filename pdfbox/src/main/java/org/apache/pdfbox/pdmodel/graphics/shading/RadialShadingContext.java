@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSBoolean;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
 
@@ -59,6 +60,8 @@ class RadialShadingContext implements PaintContext
     private double x1x0pow2;
     private double y1y0pow2;
     private double r0pow2;
+    private PDRectangle bboxRect;
+    private float[] bboxTab = new float[4];
 
     private float d1d0;
     private double denom;
@@ -79,7 +82,21 @@ class RadialShadingContext implements PaintContext
     {
         this.shading = shading;
         coords = this.shading.getCoords().toFloatArray();
-
+        bboxRect = shading.getBBox();
+        if (bboxRect != null)
+        {
+            bboxTab[0] = bboxRect.getLowerLeftX();
+            bboxTab[1] = bboxRect.getLowerLeftY();
+            bboxTab[2] = bboxRect.getUpperRightX();
+            bboxTab[3] = bboxRect.getUpperRightY();
+            if (ctm != null)
+            {
+                // transform the coords using the given matrix
+                ctm.createAffineTransform().transform(bboxTab, 0, bboxTab, 0, 2);
+            }
+             xform.transform(bboxTab, 0, bboxTab, 0, 2);
+        }
+        
         if (ctm != null)
         {
             // transform the coords using the given matrix
@@ -95,7 +112,13 @@ class RadialShadingContext implements PaintContext
         // scale radius to device space
         coords[2] *= xform.getScaleX();
         coords[5] *= xform.getScaleX();
-
+        reOrder(bboxTab, 0, 2);
+        reOrder(bboxTab, 1, 3);
+        if (bboxTab[0] >= bboxTab[2] || bboxTab[1] >= bboxTab[3])
+        {
+            bboxRect = null;
+        }
+        
         // get the shading colorSpace
         shadingColorSpace = this.shading.getColorSpace();
         // create the output colormodel using RGB+alpha as colorspace
@@ -171,6 +194,20 @@ class RadialShadingContext implements PaintContext
         }
     }
     
+    // this method is used to arrange the array to denote the left upper corner and right lower corner of the BBox
+    private void reOrder(float[] array, int i, int j)
+    {
+        if (i < j && array[i] <= array[j])
+        {
+        }
+        else
+        {
+            float tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
+        }
+    }
+    
     /**
      * Calculate the color on the line connects two circles' centers and store the result in an array.
      * @return an array, index denotes the relative position, the corresponding value the color
@@ -220,10 +257,6 @@ class RadialShadingContext implements PaintContext
             normRGBValues = (int) (rgbValues[0] * 255);
             normRGBValues |= (((int) (rgbValues[1] * 255)) << 8);
             normRGBValues |= (((int) (rgbValues[2] * 255)) << 16);
-//            for (int ci = 0; ci < 3; ci++)
-//            {
-//                normRGBValues[ci] = (int) (rgbValues[ci] * 255);
-//            }
         }
         catch (IOException exception)
         {
@@ -256,10 +289,26 @@ class RadialShadingContext implements PaintContext
         int[] data = new int[w * h * 4];
         for (int j = 0; j < h; j++)
         {
+            int currentY = y + j;
+            if (bboxRect != null)
+            {
+                if (currentY < bboxTab[1] || currentY > bboxTab[3])
+                {
+                    continue;
+                }
+            }
             for (int i = 0; i < w; i++)
             {
+                int currentX = x + i;
+                if (bboxRect != null)
+                {
+                    if (currentX < bboxTab[0] || currentX > bboxTab[2])
+                    {
+                        continue;
+                    }
+                }
                 useBackground = false;
-                float[] inputValues = calculateInputValues(x + i, y + j);
+                float[] inputValues = calculateInputValues(currentX, currentY);
                 if (Float.isNaN(inputValues[0]) && Float.isNaN(inputValues[1]))
                 {
                     if (background != null)
@@ -368,7 +417,7 @@ class RadialShadingContext implements PaintContext
                 }
                 else
                 {
-                    int key = (int) ((inputValue - domain[0]) * longestDistance / d1d0);
+                    int key = (int) (inputValue * longestDistance);
                     value = colorTable[key];
                 }
                 int index = (j * w + i) * 4;

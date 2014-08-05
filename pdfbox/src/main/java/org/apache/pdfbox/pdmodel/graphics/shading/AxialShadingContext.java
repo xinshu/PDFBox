@@ -17,7 +17,6 @@
 package org.apache.pdfbox.pdmodel.graphics.shading;
 
 import java.awt.PaintContext;
-import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
@@ -58,8 +57,8 @@ class AxialShadingContext implements PaintContext
     private double y1y0;
     private float d1d0;
     private double denom;
-    private final PDRectangle BBox;
-    private float[] bBox = new float[4];
+    private PDRectangle bboxRect;
+    private float[] bboxTab = new float[4];
     
     private final double axialLength;
     private final int[] colorTable;
@@ -77,23 +76,26 @@ class AxialShadingContext implements PaintContext
     {
         this.shading = shading;
         coords = this.shading.getCoords().toFloatArray();
-        BBox = shading.getBBox();
-        if (BBox != null)
+        bboxRect = shading.getBBox();
+        if (bboxRect != null)
         {
-            bBox[0] = BBox.getLowerLeftX();
-            bBox[1] = BBox.getLowerLeftY();
-            bBox[2] = BBox.getUpperRightX();
-            bBox[3] = BBox.getUpperRightY();
+            bboxTab[0] = bboxRect.getLowerLeftX();
+            bboxTab[1] = bboxRect.getLowerLeftY();
+            bboxTab[2] = bboxRect.getUpperRightX();
+            bboxTab[3] = bboxRect.getUpperRightY();
             if (ctm != null)
             {
                 // transform the coords using the given matrix
-                ctm.createAffineTransform().transform(bBox, 0, bBox, 0, 2);
+                ctm.createAffineTransform().transform(bboxTab, 0, bboxTab, 0, 2);
             }
-             xform.transform(bBox, 0, bBox, 0, 2);
+             xform.transform(bboxTab, 0, bboxTab, 0, 2);
         }
-//        System.out.println("before");
-//        System.out.println(coords[0] + "  " + coords[1] + "  " + coords[2] + "  " + coords[3]);
-//        System.out.println(bBox[0] + "  " + bBox[1] + "  " + bBox[2] + "  " + bBox[3]);
+        reOrder(bboxTab, 0, 2);
+        reOrder(bboxTab, 1, 3);
+        if (bboxTab[0] >= bboxTab[2] || bboxTab[1] >= bboxTab[3])
+        {
+            bboxRect = null;
+        }
         
         if (ctm != null)
         {
@@ -101,9 +103,6 @@ class AxialShadingContext implements PaintContext
             ctm.createAffineTransform().transform(coords, 0, coords, 0, 2);
         }
         xform.transform(coords, 0, coords, 0, 2);
-//        System.out.println("after");
-//        System.out.println(coords[0] + "  " + coords[1] + "  " + coords[2] + "  " + coords[3]);
-//        System.out.println(bBox[0] + "  " + bBox[1] + "  " + bBox[2] + "  " + bBox[3]);
         // get the shading colorSpace
         shadingColorSpace = this.shading.getColorSpace();
         // create the output colormodel using RGB+alpha as colorspace
@@ -148,6 +147,20 @@ class AxialShadingContext implements PaintContext
             rgbBackground = convertToRGB(background);
         }
         colorTable = calcColorTable();
+    }
+    
+    // this method is used to arrange the array to denote the left upper corner and right lower corner of the BBox
+    private void reOrder(float[] array, int i, int j)
+    {
+        if (i < j && array[i] <= array[j])
+        {
+        }
+        else
+        {
+            float tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
+        }
     }
     
     /**
@@ -230,20 +243,20 @@ class AxialShadingContext implements PaintContext
         int[] data = new int[w * h * 4];
         for (int j = 0; j < h; j++)
         {
-            double currentY = y + j;
-            if (BBox != null)
+            int currentY = y + j;
+            if (bboxRect != null)
             {
-                if (currentY < bBox[3] || currentY > bBox[1])
+                if (currentY < bboxTab[1] || currentY > bboxTab[3])
                 {
                     continue;
                 }
             }
             for (int i = 0; i < w; i++)
             {
-                double currentX = x + i;
-                if (BBox != null)
+                int currentX = x + i;
+                if (bboxRect != null)
                 {
-                    if (currentX < bBox[0] || currentX > bBox[2])
+                    if (currentX < bboxTab[0] || currentX > bboxTab[2])
                     {
                         continue;
                     }
@@ -315,7 +328,7 @@ class AxialShadingContext implements PaintContext
                 }
                 else
                 {
-                    int key = (int) ((inputValue - domain[0]) * axialLength / d1d0);
+                    int key = (int) (inputValue * axialLength);
                     value = colorTable[key];
                 }
                 int index = (j * w + i) * 4;

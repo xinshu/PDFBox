@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.pdmodel.common.PDRange;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
 import org.apache.pdfbox.util.Matrix;
 
@@ -53,7 +54,7 @@ abstract class GouraudShadingContext implements PaintContext
 
     private ColorModel outputColorModel;
     private PDColorSpace shadingColorSpace;
-    private Rectangle deviceBounds;
+    private final Rectangle deviceBounds;
 
     /** number of color components. */
     protected int numberOfColorComponents;
@@ -73,6 +74,8 @@ abstract class GouraudShadingContext implements PaintContext
 
     private final boolean hasFunction;
     protected final PDShading gouraudShadingType;
+    private PDRectangle bboxRect;
+    private float[] bboxTab = new float[4];
     
     protected HashMap<Point, Integer> pixelTable;
 
@@ -97,8 +100,28 @@ abstract class GouraudShadingContext implements PaintContext
         LOG.debug("colorSpace: " + shadingColorSpace);
         numberOfColorComponents = hasFunction ? 1 : shadingColorSpace.getNumberOfComponents();
 
+        bboxRect = shading.getBBox();
+        if (bboxRect != null)
+        {
+            bboxTab[0] = bboxRect.getLowerLeftX();
+            bboxTab[1] = bboxRect.getLowerLeftY();
+            bboxTab[2] = bboxRect.getUpperRightX();
+            bboxTab[3] = bboxRect.getUpperRightY();
+            if (ctm != null)
+            {
+                // transform the coords using the given matrix
+                ctm.createAffineTransform().transform(bboxTab, 0, bboxTab, 0, 2);
+            }
+             xform.transform(bboxTab, 0, bboxTab, 0, 2);
+        }
+        reOrder(bboxTab, 0, 2);
+        reOrder(bboxTab, 1, 3);
         LOG.debug("BBox: " + shading.getBBox());
         LOG.debug("Background: " + shading.getBackground());
+        if (bboxTab[0] >= bboxTab[2] || bboxTab[1] >= bboxTab[3])
+        {
+            bboxRect = null;
+        }
 
         // create the output color model using RGB+alpha as color space
         ColorSpace outputCS = ColorSpace.getInstance(ColorSpace.CS_sRGB);
@@ -145,6 +168,20 @@ abstract class GouraudShadingContext implements PaintContext
                     + "-> color[" + n + "]: " + colorComponentTab[n]);
         }
         return new Vertex(tmp, colorComponentTab);
+    }
+    
+    // this method is used to arrange the array to denote the left upper corner and right lower corner of the BBox
+    private void reOrder(float[] array, int i, int j)
+    {
+        if (i < j && array[i] <= array[j])
+        {
+        }
+        else
+        {
+            float tmp = array[i];
+            array[i] = array[j];
+            array[j] = tmp;
+        }
     }
 
     // transform a point from source space to device space
@@ -254,23 +291,17 @@ abstract class GouraudShadingContext implements PaintContext
         return outputColorModel;
     }
 
-//    /**
-//     * Calculate the interpolation, see p.345 pdf spec 1.7.
-//     * @param src src value
-//     * @param srcMax max src value (2^bits-1)
-//     * @param dstMin min dst value
-//     * @param dstMax max dst value
-//     * @return interpolated value
-//     */
-//    private float interpolate(float src, long srcMax, float dstMin, float dstMax)
-//    {
-//        return dstMin + (src * (dstMax - dstMin) / srcMax);
-//    }
-    
-    // get a point coordinate on a line by linear interpolation
-    private double interpolate(double x, long maxValue, float rangeMin, float rangeMax)
+    /**
+     * Calculate the interpolation, see p.345 pdf spec 1.7.
+     * @param src src value
+     * @param srcMax max src value (2^bits-1)
+     * @param dstMin min dst value
+     * @param dstMax max dst value
+     * @return interpolated value
+     */
+    private float interpolate(float src, long srcMax, float dstMin, float dstMax)
     {
-        return rangeMin + (x / maxValue) * (rangeMax - rangeMin);
+        return dstMin + (src * (dstMax - dstMin) / srcMax);
     }
 
     @Override
@@ -282,9 +313,25 @@ abstract class GouraudShadingContext implements PaintContext
         {
             for (int row = 0; row < h; row++)
             {
+                int currentY = y + row;
+                if (bboxRect != null)
+                {
+                    if (currentY < bboxTab[1] || currentY > bboxTab[3])
+                    {
+                        continue;
+                    }
+                }
                 for (int col = 0; col < w; col++)
                 {
-                    Point p = new Point(x + col, y + row);
+                    int currentX = x + col;
+                    if (bboxRect != null)
+                    {
+                        if (currentX < bboxTab[0] || currentX > bboxTab[2])
+                        {
+                            continue;
+                        }
+                    }
+                    Point p = new Point(currentX, currentY);
                     int value;
                     if (pixelTable.containsKey(p))
                     {

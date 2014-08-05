@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1406825621103
+Bnd-LastModified: 1407200928361
 Build-Jdk: 1.7.0_25
 Built-By: Shaola
 Bundle-Description: The Apache XmpBox library is an open source Java too
