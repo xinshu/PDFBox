@@ -49,6 +49,8 @@ class Type4ShadingContext extends GouraudShadingContext
      * @param xform transformation for user to device space
      * @param ctm current transformation matrix
      * @param pageHeight height of the current page
+     * @param dBounds device bounds
+     * @throws IOException if something went wrong
      */
     public Type4ShadingContext(PDShadingType4 shading, ColorModel cm, AffineTransform xform,
                                Matrix ctm, int pageHeight, Rectangle dBounds) throws IOException
@@ -61,7 +63,7 @@ class Type4ShadingContext extends GouraudShadingContext
         bitsPerCoordinate = shading.getBitsPerCoordinate();
         LOG.debug(Math.pow(2, bitsPerCoordinate) - 1);
         bitsPerFlag = shading.getBitsPerFlag();
-        LOG.debug("bitsPerFlag: " + bitsPerFlag); //TODO handle cases where bitperflag isn't 8
+        LOG.debug("bitsPerFlag: " + bitsPerFlag);
         triangleList = getTriangleList(xform,ctm);
         pixelTable = calcPixelTable();
     }
@@ -71,9 +73,7 @@ class Type4ShadingContext extends GouraudShadingContext
         PDShadingType4 FreeTriangleShadingType = (PDShadingType4) gouraudShadingType;
         COSDictionary cosDictionary = FreeTriangleShadingType.getCOSDictionary();
         PDRange rangeX = FreeTriangleShadingType.getDecodeForParameter(0);
-        //System.out.println("rangeX: " + rangeX.getMin() + "    " + rangeX.getMax());
         PDRange rangeY = FreeTriangleShadingType.getDecodeForParameter(1);
-        //System.out.println("rangeY: " + rangeY.getMin() + "    " + rangeY.getMax());
         PDRange[] colRange = new PDRange[numberOfColorComponents];
         for (int i = 0; i < numberOfColorComponents; ++i)
         {

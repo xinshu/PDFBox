@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import javax.imageio.stream.ImageInputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -194,6 +195,10 @@ abstract class GouraudShadingContext implements PaintContext
         xform.transform(p, p);
     }
     
+    /**
+     * Calculate every point and its color and store them in a Hash table.
+     * @return a Hash table which contains all the points' positions and colors of one image
+     */
     protected HashMap<Point, Integer> calcPixelTable()
     {
         HashMap<Point, Integer> map = new HashMap<Point, Integer>();
@@ -212,10 +217,88 @@ abstract class GouraudShadingContext implements PaintContext
             }
             else
             {
-                //System.out.println("start");
                 int[] boundary = tri.getBoundary();
-                //System.out.println(tri.corner[0] + " " + tri.corner[1] + " " + tri.corner[2]);
-                //System.out.println(boundary[0] + "    " + boundary[1] + "    " + boundary[2] + "    " + boundary[3]);
+//                int[] absDevBounds = {deviceBounds.x, deviceBounds.y, deviceBounds.x + deviceBounds.width, deviceBounds.x + deviceBounds.width};
+//                Point p0 = new Point((int) Math.round(tri.corner[0].getX()), (int) Math.round(tri.corner[0].getY()));
+//                Point p1 = new Point((int) Math.round(tri.corner[1].getX()), (int) Math.round(tri.corner[1].getY()));
+//                Point p2 = new Point((int) Math.round(tri.corner[2].getX()), (int) Math.round(tri.corner[2].getY()));
+//                if (containsInDevice(p0, absDevBounds) && containsInDevice(p1, absDevBounds) && 
+//                                containsInDevice(p2, absDevBounds))
+//                {
+//                    int rowN = boundary[3] - boundary[2] + 1, colN = boundary[1] - boundary[0] + 1;
+//                    boolean[][] target = new boolean[rowN][colN];
+//                    Line edge0 = new Line(p0, p1, tri.color[0], tri.color[1]);
+//                    Line edge1 = new Line(p1, p2, tri.color[1], tri.color[2]);
+//                    Line edge2 = new Line(p2, p0, tri.color[2], tri.color[0]);
+//                    for (Point p : edge0.linePoints)
+//                    {
+//                        float[] values = edge0.getColor(p);
+//                        map.put(p, convertToRGB(values));
+//                        target[p.y - boundary[2]][p.x - boundary[0]] = true;
+//                    }
+//                    for (Point p : edge1.linePoints)
+//                    {
+//                        float[] values = edge0.getColor(p);
+//                        map.put(p, convertToRGB(values));
+//                        target[p.y - boundary[2]][p.x - boundary[0]] = true;
+//                    }
+//                    for (Point p : edge2.linePoints)
+//                    {
+//                        float[] values = edge0.getColor(p);
+//                        map.put(p, convertToRGB(values));
+//                        target[p.y - boundary[2]][p.x - boundary[0]] = true;
+//                    }
+//                    // calculate center of inscribed circle
+//                    double a = getDistance(tri.corner[1], tri.corner[2]);
+//                    double b = getDistance(tri.corner[2], tri.corner[0]);
+//                    double c = getDistance(tri.corner[0], tri.corner[1]);
+//                    int cicX = (int) Math.round((a * tri.corner[0].getX() + b * tri.corner[1].getX() + 
+//                                    c * tri.corner[2].getX()) / (a + b + c));
+//                    int cicY = (int) Math.round((a * tri.corner[0].getY() + b * tri.corner[1].getY() + 
+//                                    c * tri.corner[2].getY()) / (a + b + c));
+//                    if (!target[cicY - boundary[2]][cicX - boundary[0]])
+//                    {
+//                        floodFill(cicX - boundary[0], cicY - boundary[2], target);
+//                        for (int i = 0; i < rowN; i++)
+//                        {
+//                            for (int j = 0; j < colN; j++)
+//                            {
+//                                if (target[i][j])
+//                                {
+//                                    Point current = new Point(j + boundary[0], i + boundary[2]);
+//                                    if (!map.containsKey(current))
+//                                    {
+//                                        float[] values = tri.getColor(current);
+//                                        map.put(current, convertToRGB(values));
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                else
+//                {
+//                    boundary[0] = Math.max(boundary[0], absDevBounds[0]);
+//                    boundary[1] = Math.min(boundary[1], absDevBounds[2]);
+//                    boundary[2] = Math.max(boundary[2], absDevBounds[1]);
+//                    boundary[3] = Math.min(boundary[3], absDevBounds[3]);
+//                    for (int x = boundary[0]; x <= boundary[1]; x++)
+//                    {
+//                        for (int y = boundary[2]; y <= boundary[3]; y++)
+//                        {
+//                            Point p = new Point(x, y);
+//                            if (tri.contains(p))
+//                            {
+//                                float[] values = tri.getColor(p);
+//                                map.put(p, convertToRGB(values));
+//                            }
+//                        }
+//                    }
+//                }
+//                boundary[0] = Math.max(boundary[0], absDevBounds[0]);
+//                boundary[1] = Math.min(boundary[1], absDevBounds[2]);
+//                boundary[2] = Math.max(boundary[2], absDevBounds[1]);
+//                boundary[3] = Math.min(boundary[3], absDevBounds[3]);
                 boundary[0] = Math.max(boundary[0], deviceBounds.x);
                 boundary[1] = Math.min(boundary[1], deviceBounds.x + deviceBounds.width);
                 boundary[2] = Math.max(boundary[2], deviceBounds.y);
@@ -234,9 +317,61 @@ abstract class GouraudShadingContext implements PaintContext
                 }
             }
         }
-        //System.out.println("done");
         return map;
     }
+    
+//    private double getDistance(Point2D p0, Point2D p1)
+//    {
+//        double x = p0.getX() - p1.getX();
+//        double y = p0.getY() - p1.getY();
+//        return Math.sqrt(x * x + y * y);
+//    }
+//    
+//    // whether a point is contained in the device view
+//    private boolean containsInDevice(Point p, int[] absDevBounds)
+//    {
+//        return p.getX() >= absDevBounds[0] && p.getX() <= absDevBounds[2] && p.getY() >= absDevBounds[1] && p.getY() <= absDevBounds[3];
+//    }
+//    
+//    // use floodFill algorithm to generate the points inside a triangle
+//    private void floodFill(int x, int y, boolean[][] target)
+//    {
+//        LinkedList<Integer> queue = new LinkedList<Integer>();
+//        int colN = target[0].length;
+//        target[y][x] = true;
+//        queue.add(y * colN + x);
+//        while(!queue.isEmpty())
+//        {
+//            int currentP = queue.pop();
+//            int cx = currentP % colN, cy = currentP / colN;
+//            if (isValid(cx - 1, cy, target))
+//            {
+//                target[cy][cx - 1] = true;
+//                queue.add(cy * colN + cx - 1);
+//            }
+//            if (isValid(cx + 1, cy, target))
+//            {
+//                target[cy][cx + 1] = true;
+//                queue.add(cy * colN + cx + 1);
+//            }
+//            if (isValid(cx, cy - 1, target))
+//            {
+//                target[cy - 1][cx] = true;
+//                queue.add((cy - 1) * colN + cx);
+//            }
+//            if (isValid(cx, cy + 1, target))
+//            {
+//                target[cy + 1][cx] = true;
+//                queue.add((cy + 1) * colN + cx);
+//            }
+//        }
+//    }
+//    
+//    // this is an assistant method for floodFill, to jedge whether a point is valid to add to the queue
+//    private boolean isValid(int x, int y, boolean[][] target)
+//    {
+//        return x >= 0 && x < target[0].length && y >=0 && y < target.length && (!target[y][x]);
+//    }
     
     // convert color to RGB color values
     private int convertToRGB(float[] values)

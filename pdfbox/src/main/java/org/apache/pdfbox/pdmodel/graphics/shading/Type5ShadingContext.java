@@ -48,6 +48,7 @@ class Type5ShadingContext extends GouraudShadingContext
      * @param xform transformation for user to device space
      * @param ctm current transformation matrix
      * @param pageHeight height of the current page
+     * @param dBounds device bounds
      * @throws IOException if something went wrong
      */
     public Type5ShadingContext(PDShadingType5 shading, ColorModel cm, AffineTransform xform,
@@ -62,7 +63,6 @@ class Type5ShadingContext extends GouraudShadingContext
         bitsPerCoordinate = shading.getBitsPerCoordinate();
         LOG.debug(Math.pow(2, bitsPerCoordinate) - 1);
         triangleList = getTriangleList(xform,ctm);
-        //System.out.println("type 5 shading triangleList's size: " + triangleList.size());
         pixelTable = calcPixelTable();
     }
     
@@ -92,7 +92,6 @@ class Type5ShadingContext extends GouraudShadingContext
             {
                 p = readVertex(mciis, maxSrcCoord, maxSrcColor,rangeX, rangeY, colRange, ctm, xform);
                 vlist.add(p);
-                //System.out.println(p);
             }
             catch(EOFException ex)
             {
